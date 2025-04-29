@@ -1,5 +1,7 @@
 /**
- * Shader Squisher
+ * # Tool Squisher
+ *
+ * ## Shader Squishing
  *
  * Truncates shader types into 8-bit values. This is used to fix maps compiled
  * with the leaked 1.10 beta build, enabling them to work with the official
@@ -16,6 +18,20 @@
  *
  * Note that the shader struct exists in more tags than just shader tags, but
  * only shader tags are impacted by this.
+ *
+ * ## Scenario Squishing
+ *
+ * Fixes variant numbers in conversations being incorrectly set to 0 when they
+ * are unused. This was due to a bug in the leaked 1.10 beta build's tool.exe
+ * where it didn't initialize the variant numbers to 0xFFFF. This breaks even
+ * on the leaked 1.10 build (thus conversations will ALWAYS be broken on the tag
+ * build which doesn't use cache files that could be fixed with this tool).
+ *
+ * ## Lens Flare Squishing
+ *
+ * Fixes Halo Editing Kit's tool.exe setting rotation scaling to 360 radians,
+ * which is likely higher (~58 times) than what the developer intended, 360
+ * degrees.
  *
  * --
  *
@@ -114,13 +130,16 @@ static bool do_it(const char *path, uint8_t *bytes, size_t length) {
         return false;
     }
     const char *build_string = (const char *)bytes + 0x40;
-    const char *expected_build_string = "01.00.10.0621";
+
+    const char *expected_build_string_a = "01.00.00.0609";
+    const char *expected_build_string_b = "01.00.10.0621";
+
     if(build_string[0x1F] != 0) {
         fprintf(stderr, "%s: Invalid build string!\n", path);
         return false;
     }
-    if(strncmp(build_string, expected_build_string, 32) != 0) {
-        fprintf(stderr, "%s: Build string `%s` is not `%s`, so this tool would be ineffective\n", path, build_string, expected_build_string);
+    if(strncmp(build_string, expected_build_string_a, 32) != 0 && strncmp(build_string, expected_build_string_b, 32) != 0) {
+        fprintf(stderr, "%s: Build string `%s` is not `%s` or `%s`, so this tool would be ineffective\n", path, build_string, expected_build_string_a, expected_build_string_b);
         return false;
     }
 
@@ -176,8 +195,12 @@ typedef struct Tag {
 } Tag;
 
 const uint32_t SHADER_GROUP_FOURCC = 0x73686472;
+const uint32_t SCENARIO_GROUP_FOURCC = 0x73636E72;
+const uint32_t LENS_FLARE_GROUP_FOURCC = 0x6C656E73;
 
-static void fix_shader_struct(uint8_t *shader);
+static bool fix_shader_struct(uint8_t *shader);
+static bool fix_scenario(const char *path, uint8_t *tag_data, size_t tag_data_length, uint8_t *scenario_data);
+static bool fix_lens_flare(uint8_t *lens_data);
 
 static bool fix_tag_data(const char *path, uint8_t *tag_data, size_t tag_data_length) {
     size_t tag_count = (size_t)*(uint32_t *)(tag_data + 0xC);
@@ -208,17 +231,21 @@ static bool fix_tag_data(const char *path, uint8_t *tag_data, size_t tag_data_le
                            ||        /* 🧑 */
             tag->tertiary  == SHADER_GROUP_FOURCC
         ) {
-            uint8_t *shader_data = resolve_tag_data_offset(path, tag_data, tag_data_length, tag->tag_data_addr, 0x28);
-            if(!shader_data) {
-                return false;
+            if(fix_shader_struct(resolve_tag_data_offset(path, tag_data, tag_data_length, tag->tag_data_addr, 0x28))) {
+                changes_made = true;
             }
-            uint16_t *data = (uint16_t *)(shader_data + 0x24);
-            uint16_t new_data = (*data) & 0x00FF;
-            if(new_data == *data) {
-                continue;
+        }
+
+        if(tag->primary == SCENARIO_GROUP_FOURCC) {
+            if(fix_scenario(path, tag_data, tag_data_length, resolve_tag_data_offset(path, tag_data, tag_data_length, tag->tag_data_addr, 0x468+0xC))) {
+                changes_made = true;
             }
-            *data = new_data;
-            changes_made = true;
+        }
+
+        if(tag->primary == LENS_FLARE_GROUP_FOURCC) {
+            if(fix_lens_flare(resolve_tag_data_offset(path, tag_data, tag_data_length, tag->tag_data_addr, 0x88))) {
+                changes_made = true;
+            }
         }
     }
 
@@ -227,6 +254,144 @@ static bool fix_tag_data(const char *path, uint8_t *tag_data, size_t tag_data_le
     }
 
     return changes_made;
+}
+
+static bool fix_shader_struct(uint8_t *shader_data) {
+    if(!shader_data) {
+        return false;
+    }
+    uint16_t *data = (uint16_t *)(shader_data + 0x24);
+    if(*data < 0xFF00) {
+        return false;
+    }
+
+    uint16_t new_data = (*data) & 0x00FF;
+    if(new_data == *data) {
+        return false;
+    }
+    *data = new_data;
+    return true;
+}
+
+static bool fix_lens_flare(uint8_t *lens_data) {
+    if(!lens_data) {
+        return false;
+    }
+    float *scale = (float *)(lens_data + 0x84);
+    if(*scale == 360.0) {
+        *scale = 6.283185307179586;
+        return true;
+    }
+    return false;
+}
+
+static const char *get_tag_path(const char *path, uint8_t *tag_data, size_t tag_data_length, uint32_t tag_id) {
+    // this was already checked; just proceed
+    size_t tag_count = (size_t)*(uint32_t *)(tag_data + 0xC);
+    size_t tag_index = tag_id & 0x0000FFFF;
+    if(tag_index >= tag_count) {
+        printf("%s: BAD TAG ID %08X\n", path, tag_id);
+        exit(135);
+    }
+
+    size_t MAX_PATH = 260;
+    Tag *tags = resolve_tag_data_offset(path, tag_data, tag_data_length, *(uint32_t *)tag_data, sizeof(*tags) * tag_count);
+    const char *tag_path = resolve_tag_data_offset(path, tag_data, tag_data_length, tags[tag_index].tag_path_addr, MAX_PATH);
+    if(tag_path == NULL) {
+        exit(135);
+    }
+    for(int i = 0; i < MAX_PATH; i++) {
+        if(tag_path[i] == 0) {
+            return tag_path;
+        }
+    }
+    printf("%s: BAD TAG PATH %08X\n", path, tag_id);
+    exit(135);
+}
+
+static bool fix_scenario(const char *path, uint8_t *tag_data, size_t tag_data_length, uint8_t *scenario_data) {
+    if(!scenario_data) {
+        return false;
+    }
+    uint32_t conversation_size = 116;
+    uint32_t conversation_count = *(uint32_t *)(scenario_data + 0x468);
+    if(conversation_count == 0) {
+        return false;
+    }
+
+    uint8_t *conversations = resolve_tag_data_offset(path, tag_data, tag_data_length, *(uint32_t *)(scenario_data + 0x468 + 4), conversation_size * (size_t)conversation_count);
+    if(!conversations) {
+        return false;
+    }
+
+    bool did_something = false;
+
+    for(uint32_t conversation = 0; conversation < conversation_count; conversation++, conversations += conversation_size) {
+        uint32_t participation_size = 84;
+        uint32_t participant_count = *(uint32_t *)(conversations + 0x50);
+        if(participant_count == 0) {
+            continue;
+        }
+        uint8_t *participants = resolve_tag_data_offset(path, tag_data, tag_data_length, *(uint32_t *)(conversations + 0x50 + 4), participation_size * (size_t)participant_count);
+
+        for(uint32_t participant = 0; participant < participant_count; participant++, participants += participation_size) {
+            if(participants == NULL) {
+                printf("%s: BAD PARTICIPANTS!\n", path);
+                exit(135);
+            }
+            uint16_t *variant_number = (uint16_t *)(participants + 0x18);
+
+            uint32_t line_size = 124;
+            uint32_t line_count = *(uint32_t *)(conversations + 0x5C);
+            uint16_t meme_indices[6] = {0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF};
+
+            if(line_count > 0) {
+                uint8_t *lines = resolve_tag_data_offset(path, tag_data, tag_data_length, *(uint32_t *)(conversations + 0x5C + 4), line_size * (size_t)line_count);
+
+                for(uint32_t line = 0; line < line_count; line++, lines += line_size) {
+                    if(lines == NULL) {
+                        printf("%s: BAD LINES!\n", path);
+                        exit(135);
+                    }
+                    if(*(uint16_t *)(lines + 0x2) != participant) {
+                        continue;
+                    }
+                    // this can match multiple participants, which can lead to ambiguous variant numbers; we'll just do the last one
+                    for(size_t i = 0; i < 6; i++) {
+                        uint32_t variant_id = *(uint32_t *)(lines + 0x1C + 0xC + 0x10 * i);
+                        if(variant_id != 0xFFFFFFFF) {
+                            const char *tag_path = get_tag_path(path, tag_data, tag_data_length, variant_id);
+
+                            #define IF_THING_IS_CONTAINED_IN_THE_THING(thing, number) \
+                                if(strstr(tag_path, thing) != NULL) { meme_indices[i] = number; } \
+
+                            // code is from invader
+                            IF_THING_IS_CONTAINED_IN_THE_THING("bisenti", 2)
+                            else IF_THING_IS_CONTAINED_IN_THE_THING("fitzgerald", 4)
+                            else IF_THING_IS_CONTAINED_IN_THE_THING("jenkins", 4)
+                            else IF_THING_IS_CONTAINED_IN_THE_THING("aussie", 5)
+                            else IF_THING_IS_CONTAINED_IN_THE_THING("mendoza", 6)
+                            else IF_THING_IS_CONTAINED_IN_THE_THING("sarge2", 101)
+                            else IF_THING_IS_CONTAINED_IN_THE_THING("sarge", 100)
+                            else IF_THING_IS_CONTAINED_IN_THE_THING("johnson", 100)
+                            else IF_THING_IS_CONTAINED_IN_THE_THING("lehto", 101)
+                            else {
+                                meme_indices[i] = 0;
+                            }
+                        }
+                    }
+                }
+            }
+
+            for(size_t i = 0; i < 6; i++) {
+                if(variant_number[i] != meme_indices[i]) {
+                    did_something = true;
+                    variant_number[i] = meme_indices[i];
+                }
+            }
+        }
+    }
+    return did_something;
 }
 
 const uint32_t BASE_MEMORY_ADDRESS = 0x40440000;

@@ -1,4 +1,4 @@
 all:
-	gcc -O3 -o shader-squisher shader-squisher.c
+	gcc -O3 -o tool-squisher tool-squisher.c
 clean:
-	rm shader-squisher
+	rm tool-squisher
