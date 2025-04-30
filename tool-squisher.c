@@ -306,7 +306,7 @@ static bool fix_sound(uint8_t *sound_data) {
     }
     float *minimum_distance = (float *)(sound_data + 0x8);
     float *maximum_distance = (float *)(sound_data + 0xC);
-    if(*minimum_distance != 0.0 && *maximum_distance != 0.0) {
+    if(*minimum_distance > 0.0 && *maximum_distance > 0.0) {
         return false;
     }
 
@@ -375,10 +375,10 @@ static bool fix_sound(uint8_t *sound_data) {
        default:
            return false;
     }
-    if(*minimum_distance == 0.0) {
+    if(*minimum_distance <= 0.0) {
         *minimum_distance = minimum_default;
     }
-    if(*maximum_distance == 0.0) {
+    if(*maximum_distance <= 0.0) {
         *maximum_distance = maximum_default;
     }
     return true;
