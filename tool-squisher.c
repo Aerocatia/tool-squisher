@@ -33,6 +33,12 @@
  * which is likely higher (~58 times) than what the developer intended, 360
  * degrees.
  *
+ * ## Sound Squishing
+ *
+ * Fixes Halo Editing Kit's tool.exe not defaulting sound distance bounds.
+ * This was not done by Xbox tool.exe either, but was stated by the developers
+ * as intended behavior, and was fixed in both the leaked 1.10 build and MCC.
+ *
  * --
  *
  * This software is licensed under version 3 of the GNU General Public License
@@ -194,13 +200,15 @@ typedef struct Tag {
     uint32_t padding;
 } Tag;
 
-const uint32_t SHADER_GROUP_FOURCC = 0x73686472;
-const uint32_t SCENARIO_GROUP_FOURCC = 0x73636E72;
 const uint32_t LENS_FLARE_GROUP_FOURCC = 0x6C656E73;
+const uint32_t SCENARIO_GROUP_FOURCC = 0x73636E72;
+const uint32_t SHADER_GROUP_FOURCC = 0x73686472;
+const uint32_t SOUND_GROUP_FOURCC = 0x736E6421;
 
 static bool fix_shader_struct(uint8_t *shader);
 static bool fix_scenario(const char *path, uint8_t *tag_data, size_t tag_data_length, uint8_t *scenario_data);
 static bool fix_lens_flare(uint8_t *lens_data);
+static bool fix_sound(uint8_t *sound_data);
 
 static bool fix_tag_data(const char *path, uint8_t *tag_data, size_t tag_data_length) {
     size_t tag_count = (size_t)*(uint32_t *)(tag_data + 0xC);
@@ -218,6 +226,13 @@ static bool fix_tag_data(const char *path, uint8_t *tag_data, size_t tag_data_le
 
     for(size_t i = 0; i < tag_count; i++) {
         Tag *tag = tags + i;
+
+        // The base sound struct is always in the map, even if external.
+        if(tag->primary == SOUND_GROUP_FOURCC) {
+            if(fix_sound(resolve_tag_data_offset(path, tag_data, tag_data_length, tag->tag_data_addr, 0x10))) {
+                changes_made = true;
+            }
+        }
 
         if(tag->external) {
             continue;
@@ -283,6 +298,90 @@ static bool fix_lens_flare(uint8_t *lens_data) {
         return true;
     }
     return false;
+}
+
+static bool fix_sound(uint8_t *sound_data) {
+    if(!sound_data) {
+        return false;
+    }
+    float *minimum_distance = (float *)(sound_data + 0x8);
+    float *maximum_distance = (float *)(sound_data + 0xC);
+    if(*minimum_distance != 0.0 && *maximum_distance != 0.0) {
+        return false;
+    }
+
+    uint16_t sound_class = *(uint16_t *)(sound_data + 0x4);
+    float minimum_default;
+    float maximum_default;
+    switch(sound_class) {
+        case 0:  // projectile impact
+        case 22: // vehicle collision
+        case 23: // vehicle engine
+            minimum_default = 1.4;
+            maximum_default = 8.0;
+            break;
+        case 1:  // projectile detonation
+            minimum_default = 8.0;
+            maximum_default = 120.0;
+            break;
+        case 4:  // weapon fire
+            minimum_default = 4.0;
+            maximum_default = 70.0;
+            break;
+        case 5:  // weapon ready
+        case 6:  // weapon reload
+        case 7:  // weapon empty
+        case 8:  // weapon charge
+        case 9:  // weapon overheat
+        case 10: // weapon idle
+            minimum_default = 1.0;
+            maximum_default = 9.0;
+            break;
+        case 13: // object impacts
+        case 14: // particle impacts
+        case 15: // slow particle impacts
+        case 30: // device computers
+        case 35: // ambient computers
+        case 39: // first person damage
+            minimum_default = 0.5;
+            maximum_default = 3.0;
+            break;
+        case 18: // unit footsteps
+            minimum_default = 0.9;
+            maximum_default = 10.0;
+            break;
+        case 19: // unit dialog
+        case 44: // scripted dialog player
+        case 46: // scripted dialog other
+        case 47: // scripted dialog force unspatialized
+        case 50: // game event
+            minimum_default = 3.0;
+            maximum_default = 20.0;
+            break;
+        case 26: // device door
+        case 27: // device force field
+        case 28: // device machinery
+        case 29: // device nature
+        case 32: // music
+        case 33: // ambient nature
+        case 34: // ambient machinery
+            minimum_default = 0.9;
+            maximum_default = 5.0;
+            break;
+        case 45: // scripted effect
+            minimum_default = 2.0;
+            maximum_default = 5.0;
+            break;
+       default:
+           return false;
+    }
+    if(*minimum_distance == 0.0) {
+        *minimum_distance = minimum_default;
+    }
+    if(*maximum_distance == 0.0) {
+        *maximum_distance = maximum_default;
+    }
+    return true;
 }
 
 static const char *get_tag_path(const char *path, uint8_t *tag_data, size_t tag_data_length, uint32_t tag_id) {
@@ -408,10 +507,6 @@ static void *resolve_tag_data_offset(
     }
     if(address < BASE_MEMORY_ADDRESS) {
         fprintf(stderr, "%s: Invalid address: underflows\n", path);
-        return NULL;
-    }
-    if(needed_length == 0) {
-        fprintf(stderr, "%s: Invalid needed length (0)\n", path);
         return NULL;
     }
 
