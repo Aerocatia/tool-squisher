@@ -39,6 +39,32 @@
  * This was not done by Xbox tool.exe either, but was stated by the developers
  * as intended behavior, and was fixed in both the leaked 1.10 build and MCC.
  *
+ * ## Weapon HUD Interface Squishing
+ *
+ * Fixes Weapon HUD Interface tags causing undefined behavior when they have a
+ * crosshair overlay that is conditionally visible depending on if the weapon
+ * is zoomed in.
+ *
+ * The reason this occurs is due to an oversight in tool.exe. When processing
+ * Weapon HUD Interface tags, tool.exe sets a bitfield that maps all crosshair
+ * types, where its respective bit is true if that crosshair type is present
+ * in the tag.
+ *
+ * These flags toggle behavior in the overlay, and this includes the ability
+ * to hide/show crosshair overlays depending on if the weapon is zoomed in,
+ * even if that overlay is not a zoom crosshair. The fix is to detect these
+ * overlays and also set the flag if they are present.
+ *
+ * For reference, zoom overlays are just for displaying a different bitmap
+ * depending on the current zoom level (e.g. current magnification level, a
+ * smaller crosshair for higher zoom levels, etc.). You may want additional
+ * bitmaps to be shown only when zoomed, but you might want it to be the same
+ * on all zoom levels (otherwise you would have to have multiple copies of the
+ * bitmap to avoid accessing out-of-bounds data). The stock sniper rifle even
+ * does this, and if you were to remove the 2x/8x magnification level and then
+ * build the map with tool.exe, other parts of the HUD will be broken since
+ * the flag won't be set anymore.
+ *
  * --
  *
  * This software is licensed under version 3 of the GNU General Public License
@@ -204,11 +230,13 @@ const uint32_t LENS_FLARE_GROUP_FOURCC = 0x6C656E73;
 const uint32_t SCENARIO_GROUP_FOURCC = 0x73636E72;
 const uint32_t SHADER_GROUP_FOURCC = 0x73686472;
 const uint32_t SOUND_GROUP_FOURCC = 0x736E6421;
+const uint32_t WEAPON_HUD_INTERFACE_GROUP_FOURCC = 0x77706869;
 
-static bool fix_shader_struct(uint8_t *shader);
+static bool fix_shader_struct(uint8_t *shader_data);
 static bool fix_scenario(const char *path, uint8_t *tag_data, size_t tag_data_length, uint8_t *scenario_data);
 static bool fix_lens_flare(uint8_t *lens_data);
 static bool fix_sound(uint8_t *sound_data);
+static bool fix_weapon_hud_interface(const char *path, uint8_t *tag_data, size_t tag_data_length, uint8_t *weapon_hud_interface_data);
 
 static bool fix_tag_data(const char *path, uint8_t *tag_data, size_t tag_data_length) {
     size_t tag_count = (size_t)*(uint32_t *)(tag_data + 0xC);
@@ -227,7 +255,7 @@ static bool fix_tag_data(const char *path, uint8_t *tag_data, size_t tag_data_le
     for(size_t i = 0; i < tag_count; i++) {
         Tag *tag = tags + i;
 
-        // The base sound struct is always in the map, even if external.
+        // the base sound struct is always in the map, even if external
         if(tag->primary == SOUND_GROUP_FOURCC) {
             if(fix_sound(resolve_tag_data_offset(path, tag_data, tag_data_length, tag->tag_data_addr, 0x10))) {
                 changes_made = true;
@@ -259,6 +287,12 @@ static bool fix_tag_data(const char *path, uint8_t *tag_data, size_t tag_data_le
 
         if(tag->primary == LENS_FLARE_GROUP_FOURCC) {
             if(fix_lens_flare(resolve_tag_data_offset(path, tag_data, tag_data_length, tag->tag_data_addr, 0x88))) {
+                changes_made = true;
+            }
+        }
+
+        if(tag->primary == WEAPON_HUD_INTERFACE_GROUP_FOURCC) {
+            if(fix_weapon_hud_interface(path, tag_data, tag_data_length, resolve_tag_data_offset(path, tag_data, tag_data_length, tag->tag_data_addr, 0xA0))) {
                 changes_made = true;
             }
         }
@@ -419,8 +453,9 @@ static bool fix_scenario(const char *path, uint8_t *tag_data, size_t tag_data_le
     }
 
     uint8_t *conversations = resolve_tag_data_offset(path, tag_data, tag_data_length, *(uint32_t *)(scenario_data + 0x468 + 4), conversation_size * (size_t)conversation_count);
-    if(!conversations) {
-        return false;
+    if(conversations == NULL) {
+        printf("%s: BAD AI CONVERSATIONS!\n", path);
+        exit(135);
     }
 
     bool did_something = false;
@@ -432,26 +467,23 @@ static bool fix_scenario(const char *path, uint8_t *tag_data, size_t tag_data_le
             continue;
         }
         uint8_t *participants = resolve_tag_data_offset(path, tag_data, tag_data_length, *(uint32_t *)(conversations + 0x50 + 4), participation_size * (size_t)participant_count);
-
+        if(participants == NULL) {
+            printf("%s: BAD PARTICIPANTS!\n", path);
+            exit(135);
+        }
         for(uint32_t participant = 0; participant < participant_count; participant++, participants += participation_size) {
-            if(participants == NULL) {
-                printf("%s: BAD PARTICIPANTS!\n", path);
-                exit(135);
-            }
             uint16_t *variant_number = (uint16_t *)(participants + 0x18);
-
             uint32_t line_size = 124;
             uint32_t line_count = *(uint32_t *)(conversations + 0x5C);
             uint16_t meme_indices[6] = {0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF};
 
             if(line_count > 0) {
                 uint8_t *lines = resolve_tag_data_offset(path, tag_data, tag_data_length, *(uint32_t *)(conversations + 0x5C + 4), line_size * (size_t)line_count);
-
+                if(lines == NULL) {
+                    printf("%s: BAD LINES!\n", path);
+                    exit(135);
+                }
                 for(uint32_t line = 0; line < line_count; line++, lines += line_size) {
-                    if(lines == NULL) {
-                        printf("%s: BAD LINES!\n", path);
-                        exit(135);
-                    }
                     if(*(uint16_t *)(lines + 0x2) != participant) {
                         continue;
                     }
@@ -491,6 +523,53 @@ static bool fix_scenario(const char *path, uint8_t *tag_data, size_t tag_data_le
         }
     }
     return did_something;
+}
+
+static bool fix_weapon_hud_interface(const char *path, uint8_t *tag_data, size_t tag_data_length, uint8_t *weapon_hud_interface_data) {
+    if(!weapon_hud_interface_data) {
+        return false;
+    }
+    uint32_t *crosshair_types = (uint32_t *)(weapon_hud_interface_data + 0x9C);
+    if(*crosshair_types & 2) {
+        // zoom overlay bit is already set
+        return false;
+    }
+
+    uint32_t crosshairs_size = 104;
+    uint32_t crosshairs_count = *(uint32_t *)(weapon_hud_interface_data + 0x84);
+    if(crosshairs_count == 0) {
+        return false;
+    }
+
+    uint8_t *crosshairs = resolve_tag_data_offset(path, tag_data, tag_data_length, *(uint32_t *)(weapon_hud_interface_data + 0x84 + 4), crosshairs_size * (size_t)crosshairs_count);
+    if(crosshairs == NULL) {
+        printf("%s: BAD CROSSHAIRS!\n", path);
+        exit(135);
+    }
+    for(uint32_t crosshair = 0; crosshair < crosshairs_count; crosshair++, crosshairs += crosshairs_size) {
+        uint32_t crosshair_overlays_size = 108;
+        uint32_t crosshair_overlays_count = *(uint32_t *)(crosshairs + 0x34);
+        if(crosshair_overlays_count == 0) {
+            continue;
+        }
+
+        uint8_t *crosshair_overlays = resolve_tag_data_offset(path, tag_data, tag_data_length, *(uint32_t *)(crosshairs + 0x34 + 4), crosshair_overlays_size * (size_t)crosshair_overlays_count);
+        if(crosshair_overlays == NULL) {
+            printf("%s: BAD CROSSHAIR OVERLAYS!\n", path);
+            exit(135);
+        }
+        for(uint32_t crosshair_overlay = 0; crosshair_overlay < crosshair_overlays_count; crosshair_overlay++, crosshair_overlays += crosshair_overlays_size) {
+            uint32_t flags = *(uint32_t *)(crosshair_overlays + 0x48);
+            // if `show only when zoomed`, `one zoom level`, or ` don't show when zoomed` is set, set the flag for having a `zoom overlay` crosshair type
+            if(flags & 4  ||
+               flags & 32 ||
+               flags & 64) {
+                *crosshair_types |= 2;
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 const uint32_t BASE_MEMORY_ADDRESS = 0x40440000;

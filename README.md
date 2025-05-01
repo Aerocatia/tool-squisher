@@ -37,3 +37,29 @@ degrees.
 Fixes Halo Editing Kit's tool.exe not defaulting sound distance bounds.
 This was not done by Xbox tool.exe either, but was stated by the developers
 as intended behavior, and was fixed in both the leaked 1.10 build and MCC.
+
+## Weapon HUD Interface Squishing
+
+Fixes Weapon HUD Interface tags causing undefined behavior when they have a
+crosshair overlay that is conditionally visible depending on if the weapon
+is zoomed in.
+
+The reason this occurs is due to an oversight in tool.exe. When processing
+Weapon HUD Interface tags, tool.exe sets a bitfield that maps all crosshair
+types, where its respective bit is true if that crosshair type is present
+in the tag.
+
+These flags toggle behavior in the overlay, and this includes the ability
+to hide/show crosshair overlays depending on if the weapon is zoomed in,
+even if that overlay is not a zoom crosshair. The fix is to detect these
+overlays and also set the flag if they are present.
+
+For reference, zoom overlays are just for displaying a different bitmap
+depending on the current zoom level (e.g. current magnification level, a
+smaller crosshair for higher zoom levels, etc.). You may want additional
+bitmaps to be shown only when zoomed, but you might want it to be the same
+on all zoom levels (otherwise you would have to have multiple copies of the
+bitmap to avoid accessing out-of-bounds data). The stock sniper rifle even
+does this, and if you were to remove the 2x/8x magnification level and then
+build the map with tool.exe, other parts of the HUD will be broken since
+the flag won't be set anymore.
