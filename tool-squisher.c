@@ -227,15 +227,18 @@ typedef struct Tag {
 } Tag;
 
 const uint32_t LENS_FLARE_GROUP_FOURCC = 0x6C656E73;
+const uint32_t OBJECT_GROUP_FOURCC = 0x6F626A65;
 const uint32_t SCENARIO_GROUP_FOURCC = 0x73636E72;
 const uint32_t SHADER_GROUP_FOURCC = 0x73686472;
 const uint32_t SOUND_GROUP_FOURCC = 0x736E6421;
+const uint32_t UNIT_GROUP_FOURCC = 0x756E6974;
 const uint32_t WEAPON_HUD_INTERFACE_GROUP_FOURCC = 0x77706869;
 
 static bool fix_shader_struct(uint8_t *shader_data);
 static bool fix_scenario(const char *path, uint8_t *tag_data, size_t tag_data_length, uint8_t *scenario_data);
 static bool fix_lens_flare(uint8_t *lens_data);
 static bool fix_sound(uint8_t *sound_data);
+static bool fix_unit(uint8_t *sound_data);
 static bool fix_weapon_hud_interface(const char *path, uint8_t *tag_data, size_t tag_data_length, uint8_t *weapon_hud_interface_data);
 
 static bool fix_tag_data(const char *path, uint8_t *tag_data, size_t tag_data_length) {
@@ -287,6 +290,12 @@ static bool fix_tag_data(const char *path, uint8_t *tag_data, size_t tag_data_le
 
         if(tag->primary == LENS_FLARE_GROUP_FOURCC) {
             if(fix_lens_flare(resolve_tag_data_offset(path, tag_data, tag_data_length, tag->tag_data_addr, 0x88))) {
+                changes_made = true;
+            }
+        }
+
+        if(tag->secondary == UNIT_GROUP_FOURCC && tag->tertiary  == OBJECT_GROUP_FOURCC) {
+            if(fix_unit(resolve_tag_data_offset(path, tag_data, tag_data_length, tag->tag_data_addr, 0x2A0))) {
                 changes_made = true;
             }
         }
@@ -418,6 +427,40 @@ static bool fix_sound(uint8_t *sound_data) {
     return true;
 }
 
+static bool make_enum16_valid(uint16_t *value, uint16_t max_value) {
+    if(!value) {
+        return false;
+    }
+    if(*value > max_value) {
+        uint16_t value_swapped = (*value>>8) | (*value<<8);
+        if(value_swapped <= max_value) {
+            *value = value_swapped;
+        }
+        else {
+            *value = 0;
+        }
+        return true;
+    }
+    return false;
+}
+
+static bool fix_unit(uint8_t *unit_data) {
+    if(!unit_data) {
+        return false;
+    }
+    bool changes_made = false;
+    uint16_t *metagame_type = (uint16_t *)(unit_data + 0x29C);
+    if(make_enum16_valid(metagame_type, 43)) {
+        changes_made = true;
+    }
+
+    uint16_t *metagame_class = (uint16_t *)(unit_data + 0x29E);
+    if(make_enum16_valid(metagame_class, 7)) {
+        changes_made = true;
+    }
+    return changes_made;
+}
+
 static const char *get_tag_path(const char *path, uint8_t *tag_data, size_t tag_data_length, uint32_t tag_id) {
     // this was already checked; just proceed
     size_t tag_count = (size_t)*(uint32_t *)(tag_data + 0xC);
@@ -458,7 +501,7 @@ static bool fix_scenario(const char *path, uint8_t *tag_data, size_t tag_data_le
         exit(135);
     }
 
-    bool did_something = false;
+    bool changes_made = false;
 
     for(uint32_t conversation = 0; conversation < conversation_count; conversation++, conversations += conversation_size) {
         uint32_t participation_size = 84;
@@ -516,13 +559,13 @@ static bool fix_scenario(const char *path, uint8_t *tag_data, size_t tag_data_le
 
             for(size_t i = 0; i < 6; i++) {
                 if(variant_number[i] != meme_indices[i]) {
-                    did_something = true;
+                    changes_made = true;
                     variant_number[i] = meme_indices[i];
                 }
             }
         }
     }
-    return did_something;
+    return changes_made;
 }
 
 static bool fix_weapon_hud_interface(const char *path, uint8_t *tag_data, size_t tag_data_length, uint8_t *weapon_hud_interface_data) {
