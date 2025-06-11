@@ -63,3 +63,14 @@ bitmap to avoid accessing out-of-bounds data). The stock sniper rifle even
 does this, and if you were to remove the 2x/8x magnification level and then
 build the map with tool.exe, other parts of the HUD will be broken since
 the flag won't be set anymore.
+
+## New Enum Squishing
+
+Fixes enums added to Halo's definitions after the release of Halo PC and its
+tools (e.g. CEA Unit metagame data and MCC's extra HUD anchors) that have
+been corrupted in maps compiled by older versions of tool.exe. When an older
+version of tool.exe is used with tags containing this data, the undefined
+big-endian field data will be directly copied into the map as is. The fix is
+to flip the endianness and check if the flipped value is within the bounds
+for the given field. This is safe since corrupt fields will always be largely
+out of bounds and can never be ambiguously considered valid.

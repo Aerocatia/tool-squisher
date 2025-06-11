@@ -65,6 +65,17 @@
  * build the map with tool.exe, other parts of the HUD will be broken since
  * the flag won't be set anymore.
  *
+ * ## New Enum Squishing
+ *
+ * Fixes enums added to Halo's definitions after the release of Halo PC and its
+ * tools (e.g. CEA Unit metagame data and MCC's extra HUD anchors) that have
+ * been corrupted in maps compiled by older versions of tool.exe. When an older
+ * version of tool.exe is used with tags containing this data, the undefined
+ * big-endian field data will be directly copied into the map as is. The fix is
+ * to flip the endianness and check if the flipped value is within the bounds
+ * for the given field. This is safe since corrupt fields will always be largely
+ * out of bounds and can never be ambiguously considered valid.
+ *
  * --
  *
  * This software is licensed under version 3 of the GNU General Public License
@@ -568,20 +579,58 @@ static bool fix_scenario(const char *path, uint8_t *tag_data, size_t tag_data_le
     return changes_made;
 }
 
+static bool fix_anchors_in_reflexive(const char *path, uint8_t *tag_data, size_t tag_data_length, uint32_t offset, uint32_t size, uint32_t count) {
+    if(count == 0) {
+        return false;
+    }
+    bool changes_made = false;
+    uint8_t *elements = resolve_tag_data_offset(path, tag_data, tag_data_length, offset, size * (size_t)count);
+    if(elements == NULL) {
+        printf("%s: BAD WEAPON HUD INTERFACE REFLEXIVE!\n", path);
+        exit(135);
+    }
+    for(uint32_t element = 0; element < count; element++, elements += size) {
+        uint16_t *anchor = (uint16_t *)(elements + 0x6);
+        changes_made = make_enum16_valid(anchor, 9);
+    }
+    return changes_made;
+}
+
 static bool fix_weapon_hud_interface(const char *path, uint8_t *tag_data, size_t tag_data_length, uint8_t *weapon_hud_interface_data) {
     if(!weapon_hud_interface_data) {
         return false;
     }
+    bool changes_made = false;
+    // Static Elements
+    if(fix_anchors_in_reflexive(path, tag_data, tag_data_length, *(uint32_t *)(weapon_hud_interface_data + 0x60 + 4), 180, *(uint32_t *)(weapon_hud_interface_data + 0x60))) {
+        changes_made = true;
+    }
+
+    // Meter Elements
+    if(fix_anchors_in_reflexive(path, tag_data, tag_data_length, *(uint32_t *)(weapon_hud_interface_data + 0x6C + 4), 180, *(uint32_t *)(weapon_hud_interface_data + 0x6C))) {
+        changes_made = true;
+    }
+
+    // Number Elements
+    if(fix_anchors_in_reflexive(path, tag_data, tag_data_length, *(uint32_t *)(weapon_hud_interface_data + 0x78 + 4), 160, *(uint32_t *)(weapon_hud_interface_data + 0x78))) {
+        changes_made = true;
+    }
+
+    // Overlay Elements
+    if(fix_anchors_in_reflexive(path, tag_data, tag_data_length, *(uint32_t *)(weapon_hud_interface_data + 0x90 + 4), 104, *(uint32_t *)(weapon_hud_interface_data + 0x90))) {
+        changes_made = true;
+    }
+
     uint32_t *crosshair_types = (uint32_t *)(weapon_hud_interface_data + 0x9C);
     if(*crosshair_types & 2) {
-        // zoom overlay bit is already set
-        return false;
+        // zoom overlay bit is already set and nothing more to do
+        return changes_made;
     }
 
     uint32_t crosshairs_size = 104;
     uint32_t crosshairs_count = *(uint32_t *)(weapon_hud_interface_data + 0x84);
     if(crosshairs_count == 0) {
-        return false;
+        return changes_made;
     }
 
     uint8_t *crosshairs = resolve_tag_data_offset(path, tag_data, tag_data_length, *(uint32_t *)(weapon_hud_interface_data + 0x84 + 4), crosshairs_size * (size_t)crosshairs_count);
@@ -612,7 +661,7 @@ static bool fix_weapon_hud_interface(const char *path, uint8_t *tag_data, size_t
             }
         }
     }
-    return false;
+    return changes_made;
 }
 
 const uint32_t BASE_MEMORY_ADDRESS = 0x40440000;
