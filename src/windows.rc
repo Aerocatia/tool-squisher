@@ -1,0 +1,24 @@
+1 VERSIONINFO
+FILEVERSION      1,3,0,0
+PRODUCTVERSION   1,3,0,0
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "Comments",         "Fix Halo CE map errors caused by tool.exe bugs"
+            VALUE "CompanyName",      "<3"
+            VALUE "FileDescription",  "Fix Halo CE map errors caused by tool.exe bugs"
+            VALUE "FileVersion",      "1.3.0"
+            VALUE "InternalName",     "tool-squisher"
+            VALUE "OriginalFilename", "tool-squisher.exe"
+            VALUE "ProductName",      "Tool Squisher"
+            VALUE "ProductVersion",   "1.3.0"
+            VALUE "LegalCopyright",   "\xA9 2025 Aerocatia"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
