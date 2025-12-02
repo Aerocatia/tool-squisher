@@ -7,6 +7,7 @@ project(ToolSquisher
 )
 
 add_executable(tool-squisher
+    src/crc/crc.c
     src/tool-squisher.c
 )
 
