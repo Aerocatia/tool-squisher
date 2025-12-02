@@ -91,6 +91,7 @@
 #include <memory.h>
 
 #include "crc/crc.h"
+#include "file/file.h"
 
 static bool meme(const char *path);
 int main(int argc, const char **argv) {
@@ -108,43 +109,27 @@ int main(int argc, const char **argv) {
 
 static bool do_it(const char *path, uint8_t *bytes, size_t length);
 static bool meme(const char *path) {
-    FILE *f = fopen(path, "rb");
-    if(!f) {
-        fprintf(stderr, "%s: Cannot open for reading!\n", path);
+    // It's less annoying to just skip these
+    if(file_path_is_resource_map(path)) {
+        printf("%s: Skipped (assuming it's a resource map)\n", path);
+        return true;
+    }
+
+    uint8_t *cache_file;
+    size_t cache_file_size;
+    file_read_into_buffer(path, &cache_file, &cache_file_size);
+    if(!cache_file) {
         return false;
     }
 
-    fseek(f, 0, SEEK_END);
-    size_t len = ftell(f);
-    fseek(f, 0, SEEK_SET);
-    uint8_t *a = calloc(len, 1);
-    if(!a) {
-        fprintf(stderr, "%s: Not enough RAM to read!\n", path);
-        fclose(f);
-        return false;
-    }
-    fread(a, len, 1, f);
-    fclose(f);
-
-    bool success = do_it(path, a, len);
+    bool success = do_it(path, cache_file, cache_file_size);
     if(success) {
-        FILE *f = fopen(path, "wb");
-        if(f) {
-            if(fwrite(a, len, 1, f)) {
-                printf("%s: Saved!\n", path);
-            }
-            else {
-                fprintf(stderr, "%s: Write failed. The map is likely fucked now! LOL\n", path);
-                success = false;
-            }
-            fclose(f);
-        }
-        else {
-            fprintf(stderr, "%s: Cannot open for writing!\n", path);
-            success = false;
+        success = file_write_from_buffer(path, cache_file, cache_file_size);
+        if(success) {
+            printf("%s: Saved!\n", path);
         }
     }
-    free(a);
+    free(cache_file);
 
     return success;
 }
@@ -160,17 +145,6 @@ static bool fix_crc32(
 static bool fix_tag_data(const char *path, uint8_t *tag_data, size_t tag_data_length);
 static bool do_it(const char *path, uint8_t *bytes, size_t length) {
     if(length < 0x800 || *(uint32_t *)(bytes + 0x0) != 0x68656164 || *(uint32_t *)(bytes + 0x7FC) != 0x666F6F74 || *(uint32_t *)(bytes + 0x4) != 0x261) {
-        // Avoid printing errors into the terminal if it's a resource map and not an actual cache file
-        size_t path_len = strlen(path);
-        if(path_len >= 7 && strcmp(path + path_len - 7, "loc.map") == 0) {
-            return false;
-        }
-        if(path_len >= 10 && strcmp(path + path_len - 10, "sounds.map") == 0) {
-            return false;
-        }
-        if(path_len >= 11 && strcmp(path + path_len - 11, "bitmaps.map") == 0) {
-            return false;
-        }
         fprintf(stderr, "%s: Not a Custom Edition map!\n", path);
         return false;
     }

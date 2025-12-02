@@ -8,6 +8,7 @@ project(ToolSquisher
 
 add_executable(tool-squisher
     src/crc/crc.c
+    src/file/file.c
     src/main.c
 )
 
