@@ -12,6 +12,7 @@ add_executable(tool-squisher
     src/file/file.c
     src/tag/tag.c
     src/tag/tag_fourcc.c
+    src/tag/tag_processing.c
     src/tag_groups/lens_flare.c
     src/tag_groups/scenario.c
     src/tag_groups/shader.c

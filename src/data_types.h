@@ -141,22 +141,3 @@ static inline signed long fast_ftol(float float_to_round) {
         return b;
     }
 }
-
-static inline void byteswap16(void *value) {
-    *(uint16_t *)value = __builtin_bswap16(*(uint16_t *)value);
-}
-
-static inline void byteswap32(void *value) {
-    *(uint32_t *)value = __builtin_bswap32(*(uint32_t *)value);
-}
-
-static inline bool make_enum16_valid(uint16_t *field, uint16_t field_count, uint16_t field_default) {
-    if(*field >= field_count) {
-        byteswap16(field);
-        if(*field >= field_count) {
-            *field = field_default;
-        }
-        return true;
-    }
-    return false;
-}

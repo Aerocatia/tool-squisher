@@ -1,20 +1,15 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 
 #include "../data_types.h"
 #include "../tag/tag.h"
 #include "../tag/tag_fourcc.h"
+#include "../tag/tag_processing.h"
 
 #include "weapon_hud_interface.h"
 
-static inline void weapon_hud_postprocess_child_anchor(uint16_t *anchor) {
-    byteswap16(anchor);
-    if(*anchor >= NUMBER_OF_HUD_CHILD_ANCHORS) {
-        *anchor = HUD_CHILD_ANCHOR_FROM_PARENT;
-    }
-}
+#define PROCESS_CHILD_ANCHOR(anchor) tag_process_enum16(anchor, NUMBER_OF_HUD_CHILD_ANCHORS, HUD_CHILD_ANCHOR_FROM_PARENT)
 
 bool weapon_hud_interface_final_postprocess(TagID tag, struct tag_data_instance *tag_data) {
     struct weapon_hud_interface *weapon_hud = tag_get(tag, TAG_FOURCC_WEAPON_HUD_INTERFACE, tag_data);
@@ -23,8 +18,8 @@ bool weapon_hud_interface_final_postprocess(TagID tag, struct tag_data_instance 
         return false;
     }
 
-    // Nothing supports this extension as of this time, so set it to 480p
-    weapon_hud->absolute_placement.canvas_size = HUD_CANVAS_SIZE_480P;
+    // Nothing supports this extension as of this time but might as well handle it for now
+    tag_process_enum16(&weapon_hud->absolute_placement.canvas_size, NUMBER_OF_HUD_CANVAS_SIZES, HUD_CANVAS_SIZE_480P);
 
     // Static elements
     for(size_t statics = 0; statics < weapon_hud->statics.count; statics++) {
@@ -34,7 +29,7 @@ bool weapon_hud_interface_final_postprocess(TagID tag, struct tag_data_instance 
             return false;
         }
 
-        weapon_hud_postprocess_child_anchor(&static_element->header.child_anchor);
+        PROCESS_CHILD_ANCHOR(&static_element->header.child_anchor);
     }
 
     // Meter elements
@@ -45,16 +40,9 @@ bool weapon_hud_interface_final_postprocess(TagID tag, struct tag_data_instance 
             return false;
         }
 
-        weapon_hud_postprocess_child_anchor(&meter_element->header.child_anchor);
-
-        // byteswap min_alpha. we are careful here because the tag could have been in any state if extracted by old tools.
-        byteswap32(&meter_element->meter_element.min_alpha);
-        if(isfinite(meter_element->meter_element.min_alpha)) {
-            meter_element->meter_element.min_alpha = PIN(meter_element->meter_element.min_alpha, 0.0f, 1.0f);
-        }
-        else {
-            meter_element->meter_element.min_alpha = 0.0f;
-        }
+        PROCESS_CHILD_ANCHOR(&meter_element->header.child_anchor);
+        tag_process_float(&meter_element->meter_element.min_alpha);
+        meter_element->meter_element.min_alpha = PIN(meter_element->meter_element.min_alpha, 0.0f, 1.0f);
     }
 
     // Number elements
@@ -65,7 +53,7 @@ bool weapon_hud_interface_final_postprocess(TagID tag, struct tag_data_instance 
             return false;
         }
 
-        weapon_hud_postprocess_child_anchor(&number_element->header.child_anchor);
+        PROCESS_CHILD_ANCHOR(&number_element->header.child_anchor);
     }
 
     // Overlays elements
@@ -76,7 +64,7 @@ bool weapon_hud_interface_final_postprocess(TagID tag, struct tag_data_instance 
             return false;
         }
 
-        weapon_hud_postprocess_child_anchor(&overlays_element->header.child_anchor);
+        PROCESS_CHILD_ANCHOR(&overlays_element->header.child_anchor);
     }
 
     // Check for buggy zoom flag state
