@@ -13,11 +13,13 @@ add_executable(tool-squisher
     src/tag/tag.c
     src/tag/tag_fourcc.c
     src/tag/tag_processing.c
+    src/tag_groups/hud_types.c
     src/tag_groups/lens_flare.c
     src/tag_groups/scenario.c
     src/tag_groups/shader.c
     src/tag_groups/sound.c
     src/tag_groups/unit.c
+    src/tag_groups/unit_hud_interface.c
     src/tag_groups/weapon_hud_interface.c
     src/main.c
 )

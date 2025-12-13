@@ -8,4 +8,5 @@
 #include "shader.h"
 #include "sound.h"
 #include "unit.h"
+#include "unit_hud_interface.h"
 #include "weapon_hud_interface.h"

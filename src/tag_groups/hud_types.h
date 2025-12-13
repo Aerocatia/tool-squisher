@@ -13,6 +13,7 @@ enum {
 enum {
     HUD_SCALE_FLAGS_DONT_SCALE_OFFSET_BIT,
     HUD_SCALE_FLAGS_DONT_SCALE_SIZE_BIT,
+    HUD_SCALE_FLAGS_USE_HIGH_RES_SCALE_BIT,
     NUMBER_OF_HUD_SCALE_FLAGS
 };
 
@@ -22,7 +23,8 @@ enum {
     HUD_METER_FLAGS_INTERPOLATE_IN_HSV_SPACE_BIT,
     HUD_METER_FLAGS_INTERPOLATE_ALONG_FARTHEST_HUE_PATH_BIT,
     HUD_METER_FLAGS_INVERT_INTERPOLATION_VALUE_BIT,
-    NUMBER_OF_HUD_METER_FLAGS,
+    HUD_METER_FLAGS_USE_XBOX_SHADING_BIT,
+    NUMBER_OF_HUD_METER_FLAGS
 };
 
 enum {
@@ -337,3 +339,6 @@ struct hud_multiplayer_parameters {
     uint32_t unused[64];
 };
 static_assert(sizeof(struct hud_multiplayer_parameters) == 260);
+
+void hud_process_absolute_placement(struct hud_absolute_placement *absolute_placement);
+void hud_process_meter_element(struct hud_meter_element *meter);

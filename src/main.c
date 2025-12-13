@@ -10,7 +10,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include <memory.h>
 #include <libgen.h>
 
 #include "cache/cache.h"
@@ -136,7 +135,7 @@ static bool postprocess_tag_data(struct tag_data_instance *tag_data) {
             }
         }
 
-        // Process other tags
+        // Process other base tags
         switch(tag->primary_group) {
             case TAG_FOURCC_LENS_FLARE:
                 if(!lens_flare_final_postprocess(tag->tag_id, tag_data)) {
@@ -145,6 +144,11 @@ static bool postprocess_tag_data(struct tag_data_instance *tag_data) {
                 break;
             case TAG_FOURCC_SCENARIO:
                 if(!scenario_final_postprocess(tag->tag_id, tag_data)) {
+                    return false;
+                }
+                break;
+            case TAG_FOURCC_UNIT_HUD_INTERFACE:
+                if(!unit_hud_interface_final_postprocess(tag->tag_id, tag_data)) {
                     return false;
                 }
                 break;

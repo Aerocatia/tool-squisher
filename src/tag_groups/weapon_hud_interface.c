@@ -1,6 +1,5 @@
 #include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
 
 #include "../data_types.h"
 #include "../tag/tag.h"
@@ -41,8 +40,7 @@ bool weapon_hud_interface_final_postprocess(TagID tag, struct tag_data_instance 
         }
 
         PROCESS_CHILD_ANCHOR(&meter_element->header.child_anchor);
-        tag_process_float(&meter_element->meter_element.min_alpha);
-        meter_element->meter_element.min_alpha = PIN(meter_element->meter_element.min_alpha, 0.0f, 1.0f);
+        hud_process_meter_element(&meter_element->meter_element);
     }
 
     // Number elements
