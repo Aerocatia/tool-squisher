@@ -17,8 +17,8 @@ bool weapon_hud_interface_final_postprocess(TagID tag, struct tag_data_instance 
         return false;
     }
 
-    // Nothing supports this extension as of this time but might as well handle it for now
-    tag_process_enum16(&weapon_hud->absolute_placement.canvas_size, NUMBER_OF_HUD_CANVAS_SIZES, HUD_CANVAS_SIZE_480P);
+    // Absolute placement
+    hud_process_absolute_placement(&weapon_hud->absolute_placement);
 
     // Static elements
     for(size_t statics = 0; statics < weapon_hud->statics.count; statics++) {
@@ -67,7 +67,7 @@ bool weapon_hud_interface_final_postprocess(TagID tag, struct tag_data_instance 
 
     // Check for buggy zoom flag state
     if(weapon_hud->crosshairs.count == 0 || TEST_FLAG(weapon_hud->valid_crosshair_types_flags, WEAPON_HUD_CROSSHAIR_STATE_ZOOM)) {
-        // no crosshairs or zoom overlay bit is already set. nothing more to do
+        // No crosshairs or zoom bit is already set. nothing more to do
         return true;
     }
 
@@ -83,10 +83,18 @@ bool weapon_hud_interface_final_postprocess(TagID tag, struct tag_data_instance 
                 fprintf(stderr,"crosshair overlay %zu in crosshairs element %zu in \"%s.%s\" is out of bounds\n", overlay, crosshairs, tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_WEAPON_HUD_INTERFACE));
                 return false;
             }
+
+            // Set WEAPON_HUD_CROSSHAIR_STATE_ZOOM crosshair type flag if either of these zoom flags are set
             if(TEST_FLAG(overlay_element->flags, WEAPON_HUD_CROSSHAIR_FLAGS_NOT_ON_DEFAULT_ZOOM_BIT) ||
                 TEST_FLAG(overlay_element->flags, WEAPON_HUD_CROSSHAIR_FLAGS_ONE_ZOOM_LEVEL_BIT) ||
                 TEST_FLAG(overlay_element->flags, WEAPON_HUD_CROSSHAIR_FLAGS_ONLY_ON_DEFAULT_ZOOM_BIT)) {
 
+                // Fun fact: some maps (e.g. "h3 foundry.map") only work because HEK+ left this runtime flag set on tag extraction.
+                // Said tag would then be edited in such a way where the flag would not explicitly be set by tool.exe again.
+                // Newer tag extractors will (correctly) clear runtime tag fields, and even the MEK clears this.
+                // This leads to the game breaking in horrible horrible ways if you do not set it here in this condition.
+                // Bungie would never hit this, because every scoped weapon has a zoom level sprite causing tool.exe to always set the flag.
+                // With custom weapons however it is up to the author. This bug still happens on MCC CEA!
                 SET_FLAG(weapon_hud->valid_crosshair_types_flags, WEAPON_HUD_CROSSHAIR_STATE_ZOOM, true);
                 return true;
             }
