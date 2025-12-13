@@ -25,9 +25,8 @@ void *tag_reflexive_get_element(struct tag_reflexive *reflexive, uint32_t index,
         return nullptr;
     }
 
-    // Make sure everything after the requested element is in bounds
-    size_t size_to_end = (reflexive->count - index) * size;
-    return tag_resolve_pointer(reflexive->address + index * size, tag_data, size_to_end);
+    // Totally not pointing to bullshit. Trust me...im a dolphin
+    return tag_resolve_pointer(reflexive->address + index * size, tag_data, size);
 }
 
 void *tag_get(TagID tag_id, uint32_t tag_group, struct tag_data_instance *tag_data) {

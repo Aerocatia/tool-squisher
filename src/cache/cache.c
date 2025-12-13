@@ -47,15 +47,10 @@ bool cache_file_fix_checksum(struct cache_file_instance *cache_file) {
         return false;
     }
 
-    struct scenario_structure_bsp_reference *bsps = tag_reflexive_get_element(&scenario_tag->structure_bsp_references, 0, sizeof(struct scenario_structure_bsp_reference), &cache_file->tag_data);
-    if(!bsps) {
-        return false;
-    }
-
     crc_new(&cache_file->header->checksum);
     for(size_t i = 0; i < scenario_tag->structure_bsp_references.count; i++) {
-        struct scenario_structure_bsp_reference *bsp = bsps + i;
-        if(bsp->offset > cache_file->size || (uint64_t)bsp->offset + (uint64_t)bsp->size > cache_file->size) {
+        struct scenario_structure_bsp_reference *bsp = scenario_get_bsp_reference(scenario_tag, i, &cache_file->tag_data);
+        if(!bsp && (bsp->offset > cache_file->size || (uint64_t)bsp->offset + (uint64_t)bsp->size > cache_file->size)) {
             return false;
         }
         crc_checksum_buffer(&cache_file->header->checksum, cache_file->data + bsp->offset, bsp->size);
