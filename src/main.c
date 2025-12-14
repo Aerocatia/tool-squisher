@@ -137,6 +137,11 @@ static bool postprocess_tag_data(struct tag_data_instance *tag_data) {
 
         // Process other base tags
         switch(tag->primary_group) {
+            case TAG_FOURCC_ACTOR_VARIANT:
+                if(!actor_variant_final_postprocess(tag->tag_id, tag_data)) {
+                    return false;
+                }
+                break;
             case TAG_FOURCC_LENS_FLARE:
                 if(!lens_flare_final_postprocess(tag->tag_id, tag_data)) {
                     return false;

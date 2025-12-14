@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stdlib.h>
 
 #include "../data_types.h"
 #include "../tag/tag_processing.h"
@@ -7,7 +8,7 @@
 
 void hud_process_absolute_placement(struct hud_absolute_placement *absolute_placement) {
     if(!absolute_placement) {
-        return;
+        abort();
     }
 
     // Nothing supports this extension as of this time but might as well handle it for now
@@ -16,7 +17,7 @@ void hud_process_absolute_placement(struct hud_absolute_placement *absolute_plac
 
 void hud_process_meter_element(struct hud_meter_element *meter) {
     if(!meter) {
-        return;
+        abort();
     }
 
     // Fix min_alpha

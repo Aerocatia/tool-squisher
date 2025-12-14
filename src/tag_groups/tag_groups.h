@@ -1,5 +1,6 @@
 #pragma once
 
+#include "actor_variant.h"
 #include "hud_globals.h"
 #include "hud_number.h"
 #include "lens_flare.h"

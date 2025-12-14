@@ -290,4 +290,5 @@ struct unit {
 };
 static_assert(sizeof(struct unit) == 752);
 
+void unit_process_metagame_properties(struct unit_metagame_properties *metagame_properties);
 bool uint_final_postprocess(TagID tag, struct tag_data_instance *tag_data);
