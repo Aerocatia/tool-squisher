@@ -6,6 +6,7 @@
 #include "../tag/tag_fourcc.h"
 #include "../tag/tag_processing.h"
 
+#include "hud_types.h"
 #include "weapon_hud_interface.h"
 
 #define PROCESS_CHILD_ANCHOR(anchor) tag_process_enum16(anchor, NUMBER_OF_HUD_CHILD_ANCHORS, HUD_CHILD_ANCHOR_FROM_PARENT)

@@ -88,6 +88,9 @@ struct hud_globals {
     int16_t checkpoint_begin_index;
     int16_t checkpoint_end_index;
     struct tag_reference checkpoint_sound;
-    uint32_t unused2[24];
+    struct tag_reflexive bitmap_remaps;
+    uint32_t unused2[21];
 };
 static_assert(sizeof(struct hud_globals) == 1104);
+
+bool hud_globals_final_postprocess(TagID tag, struct tag_data_instance *tag_data);
