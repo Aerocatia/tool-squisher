@@ -154,6 +154,14 @@ enum {
     NUMBER_OF_UNIT_METAGAME_CLASSES
 };
 
+enum {
+    UNIT_GRENADE_TYPE_HUMAN_FRAGMENTATION,
+    UNIT_GRENADE_TYPE_COVENANT_PLASMA,
+    UNIT_GRENADE_TYPE_2,
+    UNIT_GRENADE_TYPE_3,
+    NUMBER_OF_UNIT_GRENADE_TYPES
+};
+
 struct unit_camera {
     String32 marker_name;
     String32 submerged_marker_name;
