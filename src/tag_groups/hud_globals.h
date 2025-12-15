@@ -18,6 +18,8 @@ enum {
     NUMBER_OF_HUD_WAYPOINT_TYPES
 };
 
+#pragma pack(push, 1)
+
 struct hud_waypoint {
     float top_offset;
     float bottom_offset;
@@ -92,5 +94,7 @@ struct hud_globals {
     uint32_t unused2[21];
 };
 static_assert(sizeof(struct hud_globals) == 1104);
+
+#pragma pack(pop)
 
 bool hud_globals_final_postprocess(TagID tag, struct tag_data_instance *tag_data);

@@ -56,6 +56,8 @@ enum {
     NUMBER_OF_SHADER_FRAMEBUFFER_FADE_MODES
 };
 
+#pragma pack(push, 1)
+
 struct shader_radiosity_properties {
     uint16_t flags;
     uint16_t detail_level;
@@ -75,5 +77,7 @@ struct shader {
     uint16_t type;
     uint16_t pad;
 };
+
+#pragma pack(pop)
 
 bool shader_final_postprocess(TagID tag, struct tag_data_instance *tag_data);

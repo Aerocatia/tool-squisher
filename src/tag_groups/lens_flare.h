@@ -48,6 +48,8 @@ enum {
     NUMBER_OF_LENS_FLARE_CORONA_ROTATION_FUNCTIONS
 };
 
+#pragma pack(push, 1)
+
 struct lens_flare_reflection {
     uint16_t flags;
     uint16_t type;
@@ -97,5 +99,7 @@ struct lens_flare {
     uint32_t unused4[8];
 };
 static_assert(sizeof(struct lens_flare) == 240);
+
+#pragma pack(pop)
 
 bool lens_flare_final_postprocess(TagID tag, struct tag_data_instance *tag_data);

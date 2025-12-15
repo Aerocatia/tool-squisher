@@ -20,6 +20,8 @@ enum {
     NUMBER_OF_SCENARIO_TYPES
 };
 
+#pragma pack(push, 1)
+
 struct scenario_structure_bsp_reference {
     uint32_t offset;
     uint32_t size;
@@ -102,6 +104,8 @@ struct scenario {
     struct tag_reflexive structure_bsp_references;
 };
 static_assert(sizeof(struct scenario) == 1456);
+
+#pragma pack(pop)
 
 #define scenario_get_bsp_reference(scenario, index, data) tag_reflexive_get_element(&(scenario)->structure_bsp_references, index, sizeof(struct scenario_structure_bsp_reference), data)
 

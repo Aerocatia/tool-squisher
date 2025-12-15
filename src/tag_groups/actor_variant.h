@@ -54,6 +54,8 @@ enum {
     NUMBER_OF_ACTOR_VARIANT_SPECIAL_FIRE_SITUATIONS
 };
 
+#pragma pack(push, 1)
+
 struct actor_variant_burst_geometry {
     float burst_origin_radius;
     float burst_origin_angle;
@@ -183,6 +185,8 @@ struct actor_variant {
     struct tag_reflexive change_colors;
 };
 static_assert(sizeof(struct actor_variant) == 568);
+
+#pragma pack(pop)
 
 #define actor_variant_get_change_colors(variant, index, data) tag_reflexive_get_element(&(variant)->change_colors, index, sizeof(struct actor_variant_change_colors), data)
 

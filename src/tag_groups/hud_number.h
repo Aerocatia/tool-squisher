@@ -5,6 +5,8 @@
 #include "../data_types.h"
 #include "../tag/tag.h"
 
+#pragma pack(push, 1)
+
 struct hud_number {
     struct tag_reference number_bitmap;
     int8_t character_width;
@@ -17,3 +19,5 @@ struct hud_number {
     uint32_t unused[19];
 };
 static_assert(sizeof(struct hud_number) == 100);
+
+#pragma pack(pop)

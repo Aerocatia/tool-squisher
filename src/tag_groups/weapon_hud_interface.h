@@ -93,6 +93,8 @@ enum {
     NUMBER_OF_WEAPON_HUD_CROSSHAIR_STATES,
 };
 
+#pragma pack(push, 1)
+
 struct weapon_hud_element_header {
     uint16_t state_type;
     uint16_t runtime_flags;
@@ -205,6 +207,8 @@ struct weapon_hud_interface {
     uint32_t unused2[12];
 };
 static_assert(sizeof(struct weapon_hud_interface) == 380);
+
+#pragma pack(pop)
 
 #define weapon_hud_get_static_element(hud, index, data) tag_reflexive_get_element(&(hud)->statics, index, sizeof(struct weapon_hud_static_element), data)
 #define weapon_hud_get_meter_element(hud, index, data) tag_reflexive_get_element(&(hud)->meters, index, sizeof(struct weapon_hud_meter_element), data)

@@ -39,6 +39,8 @@ enum {
     NUMBER_OF_UNIT_HUD_AUXILIARY_OVERLAY_TYPES
 };
 
+#pragma pack(push, 1)
+
 struct uint_hud_shield_panel {
     struct hud_static_element background;
     struct hud_meter_element meter;
@@ -109,6 +111,8 @@ struct unit_hud_interface {
     uint32_t unused[101];
 };
 static_assert(sizeof(struct unit_hud_interface) == 1388);
+
+#pragma pack(pop)
 
 #define unit_hud_get_auxiliary_meter_element(hud, index, data) tag_reflexive_get_element(&(hud)->auxiliary_meters, index, sizeof(struct uint_hud_auxiliary_meter_element), data)
 

@@ -162,6 +162,8 @@ enum {
     NUMBER_OF_MULTITEXTURE_ADDRESSES
 };
 
+#pragma pack(push, 1)
+
 struct hud_absolute_placement {
     uint16_t anchor;
     uint16_t canvas_size;
@@ -347,6 +349,8 @@ struct hud_sound_element {
     uint32_t unused[8];
 };
 static_assert(sizeof(struct hud_sound_element) == 56);
+
+#pragma pack(pop)
 
 void hud_process_absolute_placement(struct hud_absolute_placement *absolute_placement);
 void hud_process_meter_element(struct hud_meter_element *meter);

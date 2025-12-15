@@ -23,6 +23,8 @@ enum {
     NUMBER_OF_GRENADE_HUD_SOUND_STATES,
 };
 
+#pragma pack(push, 1)
+
 struct grenade_count_panel {
     struct hud_static_element background;
     struct hud_number_element numbers;
@@ -42,5 +44,7 @@ struct grenade_hud_interface {
     uint32_t unused1[12];
 };
 static_assert(sizeof(struct grenade_hud_interface) == 504);
+
+#pragma pack(pop)
 
 bool grenade_hud_interface_final_postprocess(TagID tag, struct tag_data_instance *tag_data);

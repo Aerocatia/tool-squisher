@@ -87,6 +87,8 @@ enum {
     NUMBER_OF_SOUND_SAMPLE_RATES
 };
 
+#pragma pack(push, 1)
+
 struct sound_permutation {
     String32 name;
     float skip_fraction;
@@ -155,5 +157,7 @@ struct sound {
     struct tag_reflexive pitch_ranges;
 };
 static_assert(sizeof(struct sound) == 164);
+
+#pragma pack(pop)
 
 bool sound_final_postprocess(TagID tag, struct tag_data_instance *tag_data);

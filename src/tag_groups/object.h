@@ -95,6 +95,8 @@ enum {
     NUMBER_OF_OBJECT_FUNCTION_MODES
 };
 
+#pragma pack(push, 1)
+
 struct object_function {
     uint32_t flags;
     float period;
@@ -193,3 +195,5 @@ struct object {
     struct _object object;
 };
 static_assert(sizeof(struct object) == 380);
+
+#pragma pack(pop)

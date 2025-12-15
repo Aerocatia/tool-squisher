@@ -55,6 +55,8 @@ enum {
     NUMBER_OF_AI_CONVERSATION_ADDRESS_TYPES
 };
 
+#pragma pack(push, 1)
+
 struct ai_conversation_participant {
     uint16_t pad;
     uint16_t flags;
@@ -94,6 +96,8 @@ struct ai_conversation {
     uint32_t unused2[3];
 };
 static_assert(sizeof(struct ai_conversation) == 116);
+
+#pragma pack(pop)
 
 #define scenario_get_ai_conversation(sceanrio, index, data) tag_reflexive_get_element(&(scenario)->ai_conversations, index, sizeof(struct ai_conversation), data)
 #define scenario_get_ai_conversation_participant(conversation, index, data) tag_reflexive_get_element(&(conversation)->participants, index, sizeof(struct ai_conversation_participant), data)
