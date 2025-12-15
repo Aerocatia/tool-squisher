@@ -43,7 +43,8 @@ struct scenario {
     struct tag_reflexive functions;
     struct tag_data editor_scenario_data;
     struct tag_reflexive comments;
-    uint32_t unused2[56];
+    struct tag_reflexive scavenger_hunt_objects;
+    uint32_t unused2[53];
     struct tag_reflexive object_names;
     struct tag_reflexive scenery;
     struct tag_reflexive scenery_palette;
