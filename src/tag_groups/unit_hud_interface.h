@@ -87,14 +87,6 @@ struct uint_hud_auxiliary_overlay_element {
 };
 static_assert(sizeof(struct uint_hud_auxiliary_overlay_element) == 132);
 
-struct unit_hud_sound_element {
-    struct tag_reference sound;
-    uint32_t type_flags; // UNIT_HUD_STATES
-    float scale;
-    uint32_t unused[8];
-};
-static_assert(sizeof(struct unit_hud_sound_element) == 56);
-
 struct uint_hud_auxiliary_meter_element {
     uint16_t type;
     uint16_t pad;

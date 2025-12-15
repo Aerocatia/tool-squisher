@@ -152,6 +152,11 @@ static bool postprocess_tag_data(struct tag_data_instance *tag_data) {
                     return false;
                 }
                 break;
+            case TAG_FOURCC_GRENADE_HUD_INTERFACE:
+                if(!grenade_hud_interface_final_postprocess(tag->tag_id, tag_data)) {
+                    return false;
+                }
+                break;
             case TAG_FOURCC_HUD_GLOBALS:
                 if(!hud_globals_final_postprocess(tag->tag_id, tag_data)) {
                     return false;

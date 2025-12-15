@@ -340,5 +340,13 @@ struct hud_multiplayer_parameters {
 };
 static_assert(sizeof(struct hud_multiplayer_parameters) == 260);
 
+struct hud_sound_element {
+    struct tag_reference sound;
+    uint32_t type_flags;
+    float scale;
+    uint32_t unused[8];
+};
+static_assert(sizeof(struct hud_sound_element) == 56);
+
 void hud_process_absolute_placement(struct hud_absolute_placement *absolute_placement);
 void hud_process_meter_element(struct hud_meter_element *meter);
