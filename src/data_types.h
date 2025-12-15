@@ -70,6 +70,24 @@ typedef struct rectangle2d {
 } rectangle2d;
 static_assert(sizeof(rectangle2d) == 8);
 
+typedef struct float_rectangle2d {
+    float x0;
+    float x1;
+    float y0;
+    float y1;
+} float_rectangle2d;
+static_assert(sizeof(float_rectangle2d) == 16);
+
+typedef struct float_rectangle3d {
+    float x0;
+    float x1;
+    float y0;
+    float y1;
+    float z0;
+    float z1;
+} float_rectangle3d;
+static_assert(sizeof(float_rectangle3d) == 24);
+
 typedef struct float_bounds {
     float lower;
     float upper;
