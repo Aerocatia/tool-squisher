@@ -14,6 +14,14 @@ corrupt in the map
 Examples are new enums like HUD child anchors, HUD meter `min_alpha` and
 actor metagame types
 
+## Bitmap
+
+Bitmaps in Custom Edition MP maps that use direct file offsets in bitmaps.map
+will be changed to use indices instead (if possible), to prevent out of bounds
+data reads. This condition only happens due to a tool.exe bug when user tags
+mismatch the tags in the resource maps. Consider re-building the map with
+matching tags if this happens.
+
 ## Lens flare
 Fixes the Custom Edition HEK tool.exe setting a default rotation scaling to
 360 radians instead of 360 degrees.
@@ -21,6 +29,12 @@ Fixes the Custom Edition HEK tool.exe setting a default rotation scaling to
 ## Sound
 Fixes the Custom Edition HEK tool.exe not setting default values for the
 distance bounds.
+
+Sounds in Custom Edition MP maps that use direct file offsets in sounds.map
+will be changed to use tag paths instead (if possible), to prevent out of bounds
+data reads. This condition only happens due to a tool.exe bug when user tags
+mismatch the tags in the resource maps. Consider re-building the map with
+matching tags if this happens.
 
 ## Weapon HUD Interface
 Fixes Weapon HUD Interface tags causing undefined behavior when they have a
