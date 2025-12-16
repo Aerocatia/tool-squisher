@@ -142,6 +142,11 @@ static bool postprocess_tag_data(struct tag_data_instance *tag_data) {
                     return false;
                 }
                 break;
+            case TAG_FOURCC_BITMAP:
+                if(!bitmap_final_postprocess(tag->tag_id, tag_data)) {
+                    return false;
+                }
+                break;
             case TAG_FOURCC_LENS_FLARE:
                 if(!lens_flare_final_postprocess(tag->tag_id, tag_data)) {
                     return false;

@@ -43,7 +43,7 @@ static_assert(sizeof(struct tag_reflexive) == 12);
 
 struct tag_data {
 	uint32_t size;
-	char pad[4];
+	uint32_t external;// Set to 1 if the data is in a resource map (only used by sounds)
 	uint32_t file_offset; // Not in loose tags
 	Pointer32 address; // 32-bit pointer to data
 	Pointer32 definition;// 32-bit pointer to data definition (in-engine only)
@@ -68,7 +68,7 @@ struct tag_data_instance {
     size_t size;
     struct tag_instance *tags;
     Pointer32 data_load_address;
-    bool tags_can_be_indexed;
+    bool indexed_external_tags;
     bool valid;
 };
 

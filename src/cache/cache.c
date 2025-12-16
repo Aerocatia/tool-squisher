@@ -115,7 +115,7 @@ void cache_file_load(const char *path, struct cache_file_instance *cache_file) {
 
     // We do not allow this on non-mp maps because the other map types can hit conditions where stale tag data pointers are used (i.e. checkpoints)
     if(cache_file->header->version == CACHE_FILE_VERSION_CUSTOM_EDITION && cache_file->header->scenario_type == SCENARIO_TYPE_MULTIPLAYER) {
-        cache_file->tag_data.tags_can_be_indexed = true;
+        cache_file->tag_data.indexed_external_tags = true;
     }
 
     // This is cheeky to set before tag instances are resolved, but it's valid enough for this call

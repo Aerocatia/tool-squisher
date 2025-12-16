@@ -10,10 +10,12 @@ add_executable(tool-squisher
     src/cache/cache.c
     src/crc/crc.c
     src/file/file.c
+    src/resources/resources.c
     src/tag/tag.c
     src/tag/tag_fourcc.c
     src/tag/tag_processing.c
     src/tag_groups/actor_variant.c
+    src/tag_groups/bitmap.c
     src/tag_groups/grenade_hud_interface.c
     src/tag_groups/hud_globals.c
     src/tag_groups/hud_types.c

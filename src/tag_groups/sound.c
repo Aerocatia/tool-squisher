@@ -4,6 +4,7 @@
 #include "../data_types.h"
 #include "../tag/tag.h"
 #include "../tag/tag_fourcc.h"
+#include "../resources/resources.h"
 
 #include "sound.h"
 
@@ -90,6 +91,56 @@ bool sound_final_postprocess(TagID tag, struct tag_data_instance *tag_data) {
     }
     if(sound->maximum_distance <= 0.0f) {
         sound->maximum_distance = defaults.upper;
+    }
+
+    // Nothing more to do?
+    if(!tag_data->indexed_external_tags || tag_data->tags[tag.index].external) {
+        return true;
+    }
+
+    // Fix maps using direct sounds.map data offsets if they should be using external tags
+    // This happens due to an oversight in tool.exe when checking if tags are the same as the ones in the resource maps or not
+    const char *tag_path = tag_path_get(tag, tag_data);
+    bool make_external = false;
+    for(size_t pr = 0; pr < sound->pitch_ranges.count; pr++) {
+        struct sound_pitch_range *pitch_range = sound_get_pitch_range(sound, pr, tag_data);
+        if(!pitch_range) {
+            fprintf(stderr,"sound pitch range %zu in \"%s.%s\" is out of bounds\n", pr, tag_path, tag_fourcc_to_extension(TAG_FOURCC_SOUND));
+            return false;
+        }
+
+        for(size_t p = 0; p < sound->pitch_ranges.count; p++) {
+            struct sound_permutation *permutation = sound_get_permutation(pitch_range, p, tag_data);
+            if(!permutation) {
+                fprintf(stderr,"sound permutation %zu of pitch range %zu in \"%s.%s\" is out of bounds\n", p, pr, tag_path, tag_fourcc_to_extension(TAG_FOURCC_SOUND));
+                return false;
+            }
+
+            if(!permutation->samples.external) {
+                continue;
+            }
+
+            if(!resources_sound_is_in_sounds_map(tag_path)) {
+                fprintf(stderr,"sound \"%s\" has external sound sample offsets but does not map to the stock sounds.map by tag path\nThe map should be rebuilt\n", tag_path);
+                return false;
+            }
+
+            make_external = true;
+            goto done;
+        }
+    }
+    done:
+
+    // Please no ear destruction
+    if(make_external) {
+        // Make the base struct look as if tool.exe had made it external
+        sound->sample_rate = SOUND_SAMPLE_RATE_22K;
+        sound->encoding = SOUND_ENCODING_MONO;
+        sound->compression = SOUND_COMPRESSION_TYPE_NONE;
+        sound->runtime_maximum_play_time = 0;
+        sound->pitch_ranges.address = 0; // but not the count?
+        tag_data->tags[tag.index].external = 1;
+        fprintf(stderr,"sound \"%s\" had external sound sample offsets and was changed to lookup tag data from sounds.map by tag path\n", tag_path);
     }
 
     return true;
