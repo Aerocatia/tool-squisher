@@ -355,3 +355,96 @@ size_t tag_fourcc_get_base_struct_size(uint32_t tag_group) {
     }
     return UINT32_MAX;
 }
+
+bool tag_fourcc_is_valid_tag(uint32_t tag_group) {
+    switch(tag_group) {
+        case TAG_FOURCC_ACTOR:
+        case TAG_FOURCC_ACTOR_VARIANT:
+        case TAG_FOURCC_ANTENNA:
+        case TAG_FOURCC_MODEL_ANIMATIONS:
+        case TAG_FOURCC_BIPED:
+        case TAG_FOURCC_BITMAP:
+        case TAG_FOURCC_SPHEROID:
+        case TAG_FOURCC_CONTINUOUS_DAMAGE_EFFECT:
+        case TAG_FOURCC_MODEL_COLLISION_GEOMETRY:
+        case TAG_FOURCC_COLOR_TABLE:
+        case TAG_FOURCC_CONTRAIL:
+        case TAG_FOURCC_DEVICE_CONTROL:
+        case TAG_FOURCC_DECAL:
+        case TAG_FOURCC_UI_WIDGET_DEFINITION:
+        case TAG_FOURCC_INPUT_DEVICE_DEFAULTS:
+        case TAG_FOURCC_DEVICE:
+        case TAG_FOURCC_DETAIL_OBJECT_COLLECTION:
+        case TAG_FOURCC_EFFECT:
+        case TAG_FOURCC_EQUIPMENT:
+        case TAG_FOURCC_FLAG:
+        case TAG_FOURCC_FOG:
+        case TAG_FOURCC_FONT:
+        case TAG_FOURCC_MATERIAL_EFFECTS:
+        case TAG_FOURCC_GARBAGE:
+        case TAG_FOURCC_GLOW:
+        case TAG_FOURCC_GRENADE_HUD_INTERFACE:
+        case TAG_FOURCC_HUD_MESSAGE_TEXT:
+        case TAG_FOURCC_HUD_NUMBER:
+        case TAG_FOURCC_HUD_GLOBALS:
+        case TAG_FOURCC_ITEM:
+        case TAG_FOURCC_ITEM_COLLECTION:
+        case TAG_FOURCC_DAMAGE_EFFECT:
+        case TAG_FOURCC_LENS_FLARE:
+        case TAG_FOURCC_LIGHTNING:
+        case TAG_FOURCC_DEVICE_LIGHT_FIXTURE:
+        case TAG_FOURCC_LIGHT:
+        case TAG_FOURCC_SOUND_LOOPING:
+        case TAG_FOURCC_DEVICE_MACHINE:
+        case TAG_FOURCC_GLOBALS:
+        case TAG_FOURCC_METER:
+        case TAG_FOURCC_LIGHT_VOLUME:
+        case TAG_FOURCC_GBXMODEL:
+        case TAG_FOURCC_MODEL:
+        case TAG_FOURCC_MULTIPLAYER_SCENARIO_DESCRIPTION:
+        case TAG_FOURCC_PREFERENCES_NETWORK_GAME:
+        case TAG_FOURCC_OBJECT:
+        case TAG_FOURCC_PARTICLE:
+        case TAG_FOURCC_PARTICLE_SYSTEM:
+        case TAG_FOURCC_PHYSICS:
+        case TAG_FOURCC_PLACEHOLDER:
+        case TAG_FOURCC_POINT_PHYSICS:
+        case TAG_FOURCC_PROJECTILE:
+        case TAG_FOURCC_WEATHER_PARTICLE_SYSTEM:
+        case TAG_FOURCC_SCENARIO_STRUCTURE_BSP:
+        case TAG_FOURCC_SCENERY:
+        case TAG_FOURCC_SHADER_TRANSPARENT_CHICAGO_EXTENDED:
+        case TAG_FOURCC_SHADER_TRANSPARENT_CHICAGO:
+        case TAG_FOURCC_SCENARIO:
+        case TAG_FOURCC_SHADER_ENVIRONMENT:
+        case TAG_FOURCC_SHADER_TRANSPARENT_GLASS:
+        case TAG_FOURCC_SHADER:
+        case TAG_FOURCC_SKY:
+        case TAG_FOURCC_SHADER_TRANSPARENT_METER:
+        case TAG_FOURCC_SOUND:
+        case TAG_FOURCC_SOUND_ENVIRONMENT:
+        case TAG_FOURCC_SHADER_MODEL:
+        case TAG_FOURCC_SHADER_TRANSPARENT_GENERIC:
+        case TAG_FOURCC_UI_WIDGET_COLLECTION:
+        case TAG_FOURCC_SHADER_TRANSPARENT_PLASMA:
+        case TAG_FOURCC_SOUND_SCENERY:
+        case TAG_FOURCC_STRING_LIST:
+        case TAG_FOURCC_SHADER_TRANSPARENT_WATER:
+        case TAG_FOURCC_TAG_COLLECTION:
+        case TAG_FOURCC_CAMERA_TRACK:
+        case TAG_FOURCC_DIALOGUE:
+        case TAG_FOURCC_UNIT_HUD_INTERFACE:
+        case TAG_FOURCC_UNIT:
+        case TAG_FOURCC_UNICODE_STRING_LIST:
+        case TAG_FOURCC_VIRTUAL_KEYBOARD:
+        case TAG_FOURCC_VEHICLE:
+        case TAG_FOURCC_WEAPON:
+        case TAG_FOURCC_WIND:
+        case TAG_FOURCC_WEAPON_HUD_INTERFACE:
+            return true;
+        case TAG_FOURCC_NONE:
+        case TAG_FOURCC_NULL:
+            break;
+    }
+    return false;
+}

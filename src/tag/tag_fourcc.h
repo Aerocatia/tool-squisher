@@ -93,3 +93,4 @@ enum {
 
 const char *tag_fourcc_to_extension(uint32_t tag_group);
 size_t tag_fourcc_get_base_struct_size(uint32_t tag_group);
+bool tag_fourcc_is_valid_tag(uint32_t tag_group);

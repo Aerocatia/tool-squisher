@@ -75,5 +75,6 @@ struct tag_data_instance {
 void *tag_resolve_pointer(Pointer32 data_pointer, struct tag_data_instance *tag_data, size_t needed_size);
 void *tag_reflexive_get_element(struct tag_reflexive *reflexive, uint32_t index, size_t size, struct tag_data_instance *tag_data);
 void *tag_get(TagID tag_id, uint32_t tag_group, struct tag_data_instance *tag_data);
+const char *tag_path_get_maybe(TagID tag, struct tag_data_instance *tag_data);
 const char *tag_path_get(TagID tag, struct tag_data_instance *tag_data);
 const char *tag_extension_get(TagID tag, struct tag_data_instance *tag_data);

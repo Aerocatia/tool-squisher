@@ -19,7 +19,86 @@ static bool cache_file_verify_header(struct cache_file_header *header) {
        header->build_number[31] != '\0') {
         return false;
     }
+
     if(header->version == CACHE_FILE_VERSION_PC_RETAIL || header->version == CACHE_FILE_VERSION_CUSTOM_EDITION) {
+        return true;
+    }
+
+    return false;
+}
+
+// Similar to the check in Invader and Chimera
+static bool cache_file_tag_data_is_corrupt(struct tag_data_instance *tag_data) {
+    // Check if the scenario tag is a scenario tag
+    auto scenario_index = tag_data->header->scenario_tag.index;
+    if(tag_data->tags[scenario_index].primary_group != TAG_FOURCC_SCENARIO) {
+        return true;
+    }
+
+    // Get the scenario
+    struct scenario *scenario_tag = tag_get(tag_data->header->scenario_tag, TAG_FOURCC_SCENARIO, tag_data);
+    if(!scenario_tag) {
+        return true;
+    }
+
+    size_t tag_array_bsp_count = 0;
+    const size_t scenario_bsp_count = scenario_tag->structure_bsp_references.count;
+    for(size_t t = 0; t < tag_data->header->tag_count; t++) {
+        const char *tag_path = tag_path_get_maybe(tag_data->tags[t].tag_id, tag_data);
+        if(!tag_path) {
+            return true;
+        }
+
+        // Empty path is not allowed
+        if(strcmp(tag_path, "") == 0) {
+            return true;
+        }
+
+        auto tag_group = tag_data->tags[t].primary_group;
+
+        // If it says it's a BSP, check if it's really a BSP
+        if(tag_group == TAG_FOURCC_SCENARIO_STRUCTURE_BSP) {
+            tag_array_bsp_count++;
+            bool bsp_found = false;
+            for(size_t i = 0; i < scenario_bsp_count && !bsp_found; i++) {
+                struct scenario_structure_bsp_reference *bsp = scenario_get_bsp_reference(scenario_tag, i, tag_data);
+                if(!bsp) {
+                    return true;
+                }
+
+                bsp_found = bsp->structure_bsp.index.index == t;
+            }
+
+            if(!bsp_found) {
+                return true;
+            }
+        }
+
+        // This is an Invader thing but for the sake of this check we allow it
+        if(tag_group == TAG_FOURCC_NONE) {
+            continue;
+        }
+
+        // Tag group fourcc must be known
+        if(!tag_fourcc_is_valid_tag(tag_group)) {
+            return true;
+        }
+
+        // Check for duplicate tag paths
+        for(size_t t2 = 0; t2 < t; t2++) {
+            if(tag_group != tag_data->tags[t2].primary_group) {
+                continue;
+            }
+
+            const char *compare_path = tag_path_get(tag_data->tags[t2].tag_id, tag_data);
+            if(strcmp(tag_path, compare_path) == 0) {
+                return true;
+            }
+        }
+    }
+
+    // Check for stealth/orphan BSPs (old Eschaton)
+    if(tag_array_bsp_count != scenario_bsp_count) {
         return true;
     }
 
@@ -127,12 +206,17 @@ void cache_file_load(const char *path, struct cache_file_instance *cache_file) {
         goto cleanup;
     }
 
+    // Check for basic corruption
+    if(cache_file_tag_data_is_corrupt(&cache_file->tag_data)) {
+        fprintf(stderr, "%s: Tag data appears to be corrupt\n", cache_file->header->name);
+        goto cleanup;
+    }
+
     return;
 
     cleanup:
-    cache_file->valid = false;
-    cache_file->tag_data.valid = false;
     free(cache_file->data);
+    memset(cache_file, 0, sizeof(struct cache_file_instance));
 }
 
 void cache_file_unload(struct cache_file_instance *cache_file) {

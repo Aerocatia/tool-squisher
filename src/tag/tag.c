@@ -63,22 +63,22 @@ void *tag_get(TagID tag_id, uint32_t tag_group, struct tag_data_instance *tag_da
     return nullptr;
 }
 
-const char *tag_path_get(TagID tag, struct tag_data_instance *tag_data) {
+const char *tag_path_get_maybe(TagID tag, struct tag_data_instance *tag_data) {
     if(tag.whole_id == NULL_ID || !tag_data->valid) {
-        return TAG_INVALID_PATH;
+        return nullptr;
     }
 
     auto tag_count = tag_data->header->tag_count;
     if(tag.index >= tag_count) {
         fprintf(stderr, "requested tag ID %#x is out of bounds for the number of tags in the map (%u >= %u)\n", tag.whole_id, tag.index, tag_count);
-        return TAG_INVALID_PATH;
+        return nullptr;
     }
 
     // This will fail if the path is too close to the end of tag data, but protected maps may have unterminated path strings
     // tool.exe maps (the only thing we support) will always have other tag data after tag paths, allowing this to work
     const char *tag_path = tag_resolve_pointer(tag_data->tags[tag.index].name_address, tag_data, MAX_TAG_PATH_LENGTH);
     if(!tag_path) {
-        return TAG_INVALID_PATH;
+        return nullptr;
     }
 
     for(int i = 0; i < MAX_TAG_PATH_LENGTH; i++) {
@@ -87,7 +87,16 @@ const char *tag_path_get(TagID tag, struct tag_data_instance *tag_data) {
         }
     }
 
-    return TAG_INVALID_PATH;
+    return nullptr;
+}
+
+const char *tag_path_get(TagID tag, struct tag_data_instance *tag_data) {
+    const char *tag_path = tag_path_get_maybe(tag, tag_data);
+    if(!tag_path) {
+        return TAG_INVALID_PATH;
+    }
+
+    return tag_path;
 }
 
 const char *tag_extension_get(TagID tag, struct tag_data_instance *tag_data) {
