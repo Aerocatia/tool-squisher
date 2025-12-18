@@ -1,6 +1,6 @@
 1 VERSIONINFO
-FILEVERSION      1,4,0,0
-PRODUCTVERSION   1,4,0,0
+FILEVERSION      1,4,1,0
+PRODUCTVERSION   1,4,1,0
 BEGIN
     BLOCK "StringFileInfo"
     BEGIN
@@ -9,11 +9,11 @@ BEGIN
             VALUE "Comments",         "Fix Halo CE map errors caused by tool.exe bugs"
             VALUE "CompanyName",      "<3"
             VALUE "FileDescription",  "Fix Halo CE map errors caused by tool.exe bugs"
-            VALUE "FileVersion",      "1.4.0"
+            VALUE "FileVersion",      "1.4.1"
             VALUE "InternalName",     "tool-squisher"
             VALUE "OriginalFilename", "tool-squisher.exe"
             VALUE "ProductName",      "Tool Squisher"
-            VALUE "ProductVersion",   "1.4.0"
+            VALUE "ProductVersion",   "1.4.1"
             VALUE "LegalCopyright",   "\xA9 2025 Aerocatia"
         END
     END
