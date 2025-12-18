@@ -1,6 +1,6 @@
 #include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
+#include <assert.h>
 
 #include "unit.h"
 
@@ -10,9 +10,7 @@
 #include "../tag/tag_processing.h"
 
 void unit_process_metagame_properties(struct unit_metagame_properties *metagame_properties) {
-    if(!metagame_properties) {
-        abort();
-    }
+    assert(metagame_properties);
 
     tag_process_enum16(&metagame_properties->metagame_type, NUMBER_OF_UNIT_METAGAME_TYPES, UNIT_METAGAME_TYPE_BRUTE);
     tag_process_enum16(&metagame_properties->metagame_class, NUMBER_OF_UNIT_METAGAME_CLASSES, UNIT_METAGAME_CLASS_INFANTRY);

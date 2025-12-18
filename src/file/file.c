@@ -2,9 +2,12 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
+
 #include "file.h"
 
 void file_read_into_buffer(const char *path, uint8_t **buffer, size_t *buffer_size) {
+    assert(path && buffer && buffer_size);
     FILE *f = fopen(path, "rb");
     if(!f) {
         fprintf(stderr, "%s: Failed to open\n", path);
@@ -30,6 +33,7 @@ void file_read_into_buffer(const char *path, uint8_t **buffer, size_t *buffer_si
 }
 
 bool file_write_from_buffer(const char *path, uint8_t *buffer, size_t buffer_size) {
+    assert(path && buffer && buffer_size > 0);
     bool success = true;
     FILE *f = fopen(path, "wb");
     if(f) {
@@ -48,6 +52,7 @@ bool file_write_from_buffer(const char *path, uint8_t *buffer, size_t buffer_siz
 }
 
 bool file_path_is_resource_map(const char *path) {
+    assert(path);
     size_t path_len = strlen(path);
     if(path_len >= 7 && strcmp(path + path_len - 7, "loc.map") == 0) {
         return true;

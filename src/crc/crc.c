@@ -42,6 +42,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <assert.h>
 
 #include "crc.h"
 
@@ -92,10 +93,12 @@ static uint32_t crc32_tab[] = {
 };
 
 void crc_new(uint32_t *crc) {
+    assert(crc);
     *crc = CRC_NEW;
 }
 
 void crc_checksum_buffer(uint32_t *crc, const void *buffer, size_t size) {
+    assert(crc && buffer);
     const uint8_t *p = buffer;
     uint32_t new_crc = *crc;
     while(size--) {

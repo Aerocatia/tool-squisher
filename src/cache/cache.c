@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 #include "cache.h"
 
@@ -13,6 +14,7 @@
 #include "../tag_groups/scenario.h"
 
 static bool cache_file_verify_header(struct cache_file_header *header) {
+    assert(header);
     if(header->header_signature != CACHE_FILE_HEADER_SIGNATURE ||
        header->footer_signature != CACHE_FILE_FOOTER_SIGNATURE ||
        header->name[31] != '\0' ||
@@ -29,6 +31,8 @@ static bool cache_file_verify_header(struct cache_file_header *header) {
 
 // Similar to the check in Invader and Chimera
 static bool cache_file_tag_data_is_corrupt(struct tag_data_instance *tag_data) {
+    assert(tag_data && tag_data->valid);
+
     // Check if the scenario tag is a scenario tag
     auto scenario_index = tag_data->header->scenario_tag.index;
     if(tag_data->tags[scenario_index].primary_group != TAG_FOURCC_SCENARIO) {
@@ -107,6 +111,7 @@ static bool cache_file_tag_data_is_corrupt(struct tag_data_instance *tag_data) {
 }
 
 uint16_t cache_file_resolve_build(struct cache_file_header *header) {
+    assert(header);
     for(uint16_t i = 0; i < NUMBER_OF_CACHE_FILE_TRACKED_BUILDS; i++) {
         if(strcmp(header->build_number, cache_file_tracked_builds[i]) == 0) {
             return i;
@@ -118,10 +123,7 @@ uint16_t cache_file_resolve_build(struct cache_file_header *header) {
 }
 
 bool cache_file_fix_checksum(struct cache_file_instance *cache_file) {
-    if(!cache_file->valid && !cache_file->tag_data.valid) {
-        return false;
-    }
-
+    assert(cache_file && cache_file->valid);
     struct scenario *scenario_tag = tag_get(cache_file->tag_data.header->scenario_tag, TAG_FOURCC_SCENARIO, &cache_file->tag_data);
     if(!scenario_tag) {
         return false;
@@ -149,16 +151,18 @@ bool cache_file_fix_checksum(struct cache_file_instance *cache_file) {
 }
 
 void cache_file_load(const char *path, struct cache_file_instance *cache_file) {
+    assert(cache_file && !cache_file->data);
     file_read_into_buffer(path, &cache_file->data, &cache_file->size);
     if(!cache_file->data) {
-        cache_file->valid = false;
+        memset(cache_file, 0, sizeof(struct cache_file_instance));
         return;
     }
+
     if(cache_file->size < CACHE_FILE_MINIMUM_SIZE) {
         goto cleanup;
     }
-    cache_file->valid = cache_file_verify_header(cache_file->header);
-    if(!cache_file->valid) {
+
+    if(!cache_file_verify_header(cache_file->header)) {
         goto cleanup;
     }
 
@@ -198,14 +202,15 @@ void cache_file_load(const char *path, struct cache_file_instance *cache_file) {
         cache_file->tag_data.indexed_external_tags = true;
     }
 
-    // This is cheeky to set before tag instances are resolved, but it's valid enough for this call
-    cache_file->tag_data.valid = true;
     cache_file->tag_data.tags = tag_resolve_pointer(cache_file->tag_data.header->tag_instances, &cache_file->tag_data, sizeof(struct tag_instance) * cache_file->tag_data.header->tag_count);
-
     if(!cache_file->tag_data.tags) {
         fprintf(stderr, "%s: Tag array is out of bounds\n", cache_file->header->name);
         goto cleanup;
     }
+
+    // Valid enough to parse
+    cache_file->valid = true;
+    cache_file->tag_data.valid = true;
 
     // Check for basic corruption
     if(cache_file_tag_data_is_corrupt(&cache_file->tag_data)) {
@@ -221,9 +226,7 @@ void cache_file_load(const char *path, struct cache_file_instance *cache_file) {
 }
 
 void cache_file_unload(struct cache_file_instance *cache_file) {
-    if(cache_file->data) {
-        free(cache_file->data);
-    }
-
+    assert(cache_file && cache_file->data);
+    free(cache_file->data);
     memset(cache_file, 0, sizeof(struct cache_file_instance));
 }

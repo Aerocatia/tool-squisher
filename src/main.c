@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <libgen.h>
+#include <assert.h>
 
 #include "cache/cache.h"
 #include "crc/crc.h"
@@ -42,6 +43,8 @@ int main(int argc, const char **argv) {
 
 static bool postprocess_tag_data(struct tag_data_instance *tag_data);
 static bool postprocess_map(const char *path) {
+    assert(path);
+
     // It's less annoying to just skip these
     if(file_path_is_resource_map(path)) {
         printf("%s: Skipped (assuming it's a resource map)\n", path);
@@ -100,10 +103,7 @@ static bool postprocess_map(const char *path) {
 }
 
 static bool postprocess_tag_data(struct tag_data_instance *tag_data) {
-    if(!tag_data->valid) {
-        return false;
-    }
-
+    assert(tag_data && tag_data->valid);
     for(size_t i = 0; i < tag_data->header->tag_count; i++) {
         struct tag_instance *tag = &tag_data->tags[i];
 

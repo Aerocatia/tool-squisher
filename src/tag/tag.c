@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stdio.h>
+#include <assert.h>
 
 #include "tag.h"
 
@@ -9,9 +10,11 @@
 static const char *TAG_INVALID_PATH = "<invalid>";
 
 void *tag_resolve_pointer(Pointer32 data_pointer, struct tag_data_instance *tag_data, size_t needed_size) {
-    if(!tag_data->valid || data_pointer < tag_data->data_load_address) {
+    assert(tag_data && tag_data->data);
+    if(data_pointer < tag_data->data_load_address) {
         return nullptr;
     }
+
     size_t offset = data_pointer - tag_data->data_load_address;
     if(offset + needed_size > tag_data->size) {
         return nullptr;
@@ -21,7 +24,8 @@ void *tag_resolve_pointer(Pointer32 data_pointer, struct tag_data_instance *tag_
 }
 
 void *tag_reflexive_get_element(struct tag_reflexive *reflexive, uint32_t index, size_t size, struct tag_data_instance *tag_data) {
-    if(index >= reflexive->count || !tag_data->valid) {
+    assert(tag_data && tag_data->valid);
+    if(index >= reflexive->count) {
         return nullptr;
     }
 
@@ -30,7 +34,8 @@ void *tag_reflexive_get_element(struct tag_reflexive *reflexive, uint32_t index,
 }
 
 void *tag_get(TagID tag_id, uint32_t tag_group, struct tag_data_instance *tag_data) {
-    if(tag_id.whole_id == NULL_ID || !tag_data->valid) {
+    assert(tag_data && tag_data->valid);
+    if(tag_id.whole_id == NULL_ID) {
         return nullptr;
     }
 
@@ -64,7 +69,8 @@ void *tag_get(TagID tag_id, uint32_t tag_group, struct tag_data_instance *tag_da
 }
 
 const char *tag_path_get_maybe(TagID tag, struct tag_data_instance *tag_data) {
-    if(tag.whole_id == NULL_ID || !tag_data->valid) {
+    assert(tag_data && tag_data->valid);
+    if(tag.whole_id == NULL_ID) {
         return nullptr;
     }
 
@@ -79,13 +85,13 @@ const char *tag_path_get_maybe(TagID tag, struct tag_data_instance *tag_data) {
         return nullptr;
     }
 
-    // If this wraps something is giga broken
-    size_t max_possible_length = tag_data->data + tag_data->size - (uint8_t *)tag_path;
+    ptrdiff_t max_possible_length = tag_data->data + tag_data->size - (uint8_t *)tag_path;
+    assert(max_possible_length > 0);
     if(max_possible_length > MAX_TAG_PATH_LENGTH) {
         max_possible_length = MAX_TAG_PATH_LENGTH;
     }
 
-    for(size_t i = 0; i < max_possible_length; i++) {
+    for(size_t i = 0; i < (size_t)max_possible_length; i++) {
         if(tag_path[i] == '\0') {
             return tag_path;
         }
@@ -95,6 +101,7 @@ const char *tag_path_get_maybe(TagID tag, struct tag_data_instance *tag_data) {
 }
 
 const char *tag_path_get(TagID tag, struct tag_data_instance *tag_data) {
+    assert(tag_data && tag_data->valid);
     const char *tag_path = tag_path_get_maybe(tag, tag_data);
     if(!tag_path) {
         return TAG_INVALID_PATH;
@@ -104,7 +111,8 @@ const char *tag_path_get(TagID tag, struct tag_data_instance *tag_data) {
 }
 
 const char *tag_extension_get(TagID tag, struct tag_data_instance *tag_data) {
-    if(tag.whole_id == NULL_ID || !tag_data->valid) {
+    assert(tag_data && tag_data->valid);
+    if(tag.whole_id == NULL_ID) {
         return TAG_INVALID_PATH;
     }
 
