@@ -90,7 +90,8 @@ static bool cache_file_tag_data_is_corrupt(struct tag_data_instance *tag_data) {
                 continue;
             }
 
-            const char *compare_path = tag_path_get(tag_data->tags[t2].tag_id, tag_data);
+            // We got this path earlier
+            const char *compare_path = tag_path_get_maybe(tag_data->tags[t2].tag_id, tag_data);
             if(strcmp(tag_path, compare_path) == 0) {
                 return true;
             }

@@ -74,14 +74,18 @@ const char *tag_path_get_maybe(TagID tag, struct tag_data_instance *tag_data) {
         return nullptr;
     }
 
-    // This will fail if the path is too close to the end of tag data, but protected maps may have unterminated path strings
-    // tool.exe maps (the only thing we support) will always have other tag data after tag paths, allowing this to work
-    const char *tag_path = tag_resolve_pointer(tag_data->tags[tag.index].name_address, tag_data, MAX_TAG_PATH_LENGTH);
+    const char *tag_path = tag_resolve_pointer(tag_data->tags[tag.index].name_address, tag_data, 1);
     if(!tag_path) {
         return nullptr;
     }
 
-    for(int i = 0; i < MAX_TAG_PATH_LENGTH; i++) {
+    // If this wraps something is giga broken
+    size_t max_possible_length = tag_data->data + tag_data->size - (uint8_t *)tag_path;
+    if(max_possible_length > MAX_TAG_PATH_LENGTH) {
+        max_possible_length = MAX_TAG_PATH_LENGTH;
+    }
+
+    for(size_t i = 0; i < max_possible_length; i++) {
         if(tag_path[i] == '\0') {
             return tag_path;
         }
