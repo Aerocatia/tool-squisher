@@ -81,7 +81,7 @@ bool weapon_hud_interface_final_postprocess(TagID tag, struct tag_data_instance 
         for(size_t overlay = 0; overlay < crosshairs_element->crosshairs.items.count; overlay++) {
             struct weapon_hud_crosshair_item *overlay_element = weapon_hud_get_crosshairs_item(crosshairs_element, overlay, tag_data);
             if(!overlay_element) {
-                fprintf(stderr,"crosshair overlay %zu in crosshairs element %zu in \"%s.%s\" is out of bounds\n", overlay, crosshairs, tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_WEAPON_HUD_INTERFACE));
+                fprintf(stderr,"crosshair overlay %zu of crosshairs element %zu in \"%s.%s\" is out of bounds\n", overlay, crosshairs, tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_WEAPON_HUD_INTERFACE));
                 return false;
             }
 

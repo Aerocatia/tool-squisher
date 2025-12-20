@@ -142,6 +142,21 @@ static_assert(sizeof(float_vector3d) == 12);
 typedef float_vector2d float_point2d;
 typedef float_vector3d float_point3d;
 
+typedef struct float_quaternion {
+    float_vector3d v;
+    float w;
+} float_quaternion;
+static_assert(sizeof(float_quaternion) == 16);
+
+typedef struct float_matrix4x3 {
+    float scale;
+    float_vector3d forward;
+    float_vector3d left;
+    float_vector3d up;
+    float_point3d position;
+} float_matrix4x3;
+static_assert(sizeof(float_matrix4x3) == 52);
+
 // Replicates Halo's x87 ASM. round ties even
 static inline signed long fast_ftol(float float_to_round) {
     long rounded_down = (long)float_to_round;

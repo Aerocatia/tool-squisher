@@ -6,6 +6,7 @@
 #include "hud_globals.h"
 #include "hud_number.h"
 #include "lens_flare.h"
+#include "model.h"
 #include "object.h"
 #include "scenario.h"
 #include "shader.h"
