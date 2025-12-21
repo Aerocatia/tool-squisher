@@ -9,7 +9,7 @@
 
 static const char *TAG_INVALID_PATH = "<invalid>";
 
-void *tag_resolve_pointer(Pointer32 data_pointer, struct tag_data_instance *tag_data, size_t needed_size) {
+void *tag_resolve_pointer(Pointer32 data_pointer, size_t needed_size, struct tag_data_instance *tag_data) {
     assert(tag_data && tag_data->data);
     if(data_pointer < tag_data->data_load_address) {
         return nullptr;
@@ -30,7 +30,7 @@ void *tag_reflexive_get_element(struct tag_reflexive *reflexive, uint32_t index,
     }
 
     // Totally not pointing to bullshit. Trust me...im a dolphin
-    return tag_resolve_pointer(reflexive->address + index * size, tag_data, size);
+    return tag_resolve_pointer(reflexive->address + index * size, size, tag_data);
 }
 
 void *tag_get(TagID tag_id, uint32_t tag_group, struct tag_data_instance *tag_data) {
@@ -61,7 +61,7 @@ void *tag_get(TagID tag_id, uint32_t tag_group, struct tag_data_instance *tag_da
     auto tertiary_group = tag_data->tags[tag_id.index].tertiary_group;
     if(tag_group == primary_group || tag_group == secondary_group || tag_group == tertiary_group) {
         size_t needed_size = tag_fourcc_get_base_struct_size(tag_group);
-        return tag_resolve_pointer(tag_data->tags[tag_id.index].base_address, tag_data, needed_size);
+        return tag_resolve_pointer(tag_data->tags[tag_id.index].base_address, needed_size, tag_data);
     }
 
     fprintf(stderr, "requested tag group \"%s\" is not a valid match for tag array group \"%s\"\n", tag_fourcc_to_extension(tag_group), tag_fourcc_to_extension(primary_group));
@@ -80,7 +80,7 @@ const char *tag_path_get_maybe(TagID tag, struct tag_data_instance *tag_data) {
         return nullptr;
     }
 
-    const char *tag_path = tag_resolve_pointer(tag_data->tags[tag.index].name_address, tag_data, 1);
+    const char *tag_path = tag_resolve_pointer(tag_data->tags[tag.index].name_address, 1, tag_data);
     if(!tag_path) {
         return nullptr;
     }

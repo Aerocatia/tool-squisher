@@ -152,6 +152,11 @@ static bool postprocess_tag_data(struct tag_data_instance *tag_data) {
                     return false;
                 }
                 break;
+            case TAG_FOURCC_METER:
+                if(!meter_final_postprocess(tag->tag_id, tag_data)) {
+                    return false;
+                }
+                break;
             case TAG_FOURCC_GBXMODEL:
                 if(!gbxmodel_final_postprocess(tag->tag_id, tag_data)) {
                     return false;

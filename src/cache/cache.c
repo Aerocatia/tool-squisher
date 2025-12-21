@@ -202,7 +202,7 @@ void cache_file_load(const char *path, struct cache_file_instance *cache_file) {
         cache_file->tag_data.indexed_external_tags = true;
     }
 
-    cache_file->tag_data.tags = tag_resolve_pointer(cache_file->tag_data.header->tag_instances, &cache_file->tag_data, sizeof(struct tag_instance) * cache_file->tag_data.header->tag_count);
+    cache_file->tag_data.tags = tag_resolve_pointer(cache_file->tag_data.header->tag_instances, sizeof(struct tag_instance) * cache_file->tag_data.header->tag_count, &cache_file->tag_data);
     if(!cache_file->tag_data.tags) {
         fprintf(stderr, "%s: Tag array is out of bounds\n", cache_file->header->name);
         goto cleanup;
