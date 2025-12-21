@@ -78,3 +78,4 @@ void *tag_get(TagID tag_id, uint32_t tag_group, struct tag_data_instance *tag_da
 const char *tag_path_get_maybe(TagID tag, struct tag_data_instance *tag_data);
 const char *tag_path_get(TagID tag, struct tag_data_instance *tag_data);
 const char *tag_extension_get(TagID tag, struct tag_data_instance *tag_data);
+void tag_null_reference(struct tag_reference *reference, uint32_t tag_group);

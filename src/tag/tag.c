@@ -124,3 +124,12 @@ const char *tag_extension_get(TagID tag, struct tag_data_instance *tag_data) {
 
     return tag_fourcc_to_extension(tag_data->tags[tag.index].primary_group);
 }
+
+void tag_null_reference(struct tag_reference *reference, uint32_t tag_group) {
+    assert(reference);
+    assert(tag_fourcc_is_valid(tag_group));
+    reference->tag_group = tag_group;
+    reference->name = 0;
+    reference->name_length = 0;
+    reference->index.whole_id = NULL_ID;
+}

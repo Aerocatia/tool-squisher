@@ -2,12 +2,12 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include "unit.h"
-
 #include "../data_types.h"
 #include "../tag/tag.h"
 #include "../tag/tag_fourcc.h"
 #include "../tag/tag_processing.h"
+
+#include "unit.h"
 
 void unit_process_metagame_properties(struct unit_metagame_properties *metagame_properties) {
     assert(metagame_properties);

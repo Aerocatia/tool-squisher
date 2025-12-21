@@ -14,6 +14,14 @@ enum {
 };
 
 enum {
+    SHADER_RADIOSITY_DETAIL_LEVEL_HIGH,
+    SHADER_RADIOSITY_DETAIL_LEVEL_MEDIUM,
+    SHADER_RADIOSITY_DETAIL_LEVEL_LOW,
+    SHADER_RADIOSITY_DETAIL_LEVEL_TURD,
+    NUMBER_OF_SHADER_RADIOSITY_DETAIL_LEVELS
+};
+
+enum {
     SHADER_TYPE_SCREEN,
     SHADER_TYPE_EFFECT,
     SHADER_TYPE_DECAL,
@@ -30,11 +38,19 @@ enum {
 };
 
 enum {
-    RADIOSITY_DETAIL_LEVEL_HIGH,
-    RADIOSITY_DETAIL_LEVEL_MEDIUM,
-    RADIOSITY_DETAIL_LEVEL_LOW,
-    RADIOSITY_DETAIL_LEVEL_TURD,
-    NUMBER_OF_SHADER_RADIOSITY_DETAIL_LEVELS
+    SHADER_TEXTURE_ANIMATION_FUNCTION_ONE,
+    SHADER_TEXTURE_ANIMATION_FUNCTION_ZERO,
+    SHADER_TEXTURE_ANIMATION_FUNCTION_COSINE,
+    SHADER_TEXTURE_ANIMATION_FUNCTION_COSINE_WITH_RANDOM_PERIOD,
+    SHADER_TEXTURE_ANIMATION_FUNCTION_DIAGONAL_WAVE,
+    SHADER_TEXTURE_ANIMATION_FUNCTION_DIAGONAL_WAVE_WITH_RANDOM_PERIOD,
+    SHADER_TEXTURE_ANIMATION_FUNCTION_SLIDE,
+    SHADER_TEXTURE_ANIMATION_FUNCTION_SLIDE_WITH_RANDOM_PERIOD,
+    SHADER_TEXTURE_ANIMATION_FUNCTION_NOISE,
+    SHADER_TEXTURE_ANIMATION_FUNCTION_JITTER,
+    SHADER_TEXTURE_ANIMATION_FUNCTION_WANDER,
+    SHADER_TEXTURE_ANIMATION_FUNCTION_SPARK,
+    NUMBER_OF_SHADER_TEXTURE_ANIMATION_FUNCTIONS
 };
 
 enum {
@@ -73,13 +89,37 @@ struct shader_physics_properties {
 };
 static_assert(sizeof(struct shader_physics_properties) == 4);
 
-struct shader {
+struct _shader {
     struct shader_radiosity_properties radiosity;
     struct shader_physics_properties physics;
     uint16_t type;
     uint16_t pad;
 };
+static_assert(sizeof(struct _shader) == 40);
+
+struct shader {
+    struct _shader;
+};
 static_assert(sizeof(struct shader) == 40);
+
+struct shader_texture_animation_component {
+    uint16_t source;
+    uint16_t function;
+    float period;
+    float phase;
+    float scale;
+};
+static_assert(sizeof(struct shader_texture_animation_component) == 16);
+
+struct shader_texture_animation {
+    struct shader_texture_animation_component u;
+    struct shader_texture_animation_component v;
+    struct rotation {
+        struct shader_texture_animation_component;
+        float_point2d center;
+    };
+};
+static_assert(sizeof(struct shader_texture_animation) == 56);
 
 #pragma pack(pop)
 

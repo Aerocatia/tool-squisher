@@ -178,6 +178,7 @@ const char *tag_fourcc_to_extension(uint32_t tag_group) {
         case TAG_FOURCC_NULL:
             break;
     }
+
     return "unknown";
 }
 
@@ -314,7 +315,7 @@ size_t tag_fourcc_get_base_struct_size(uint32_t tag_group) {
         case TAG_FOURCC_SOUND_ENVIRONMENT:
             return 72;
         case TAG_FOURCC_SHADER_MODEL:
-            return 440;
+            return sizeof(struct shader_model);
         case TAG_FOURCC_SHADER_TRANSPARENT_GENERIC:
             return 108;
         case TAG_FOURCC_UI_WIDGET_COLLECTION:
@@ -353,6 +354,7 @@ size_t tag_fourcc_get_base_struct_size(uint32_t tag_group) {
         case TAG_FOURCC_NULL:
             break;
     }
+
     return UINT32_MAX;
 }
 
@@ -446,5 +448,14 @@ bool tag_fourcc_is_valid_tag(uint32_t tag_group) {
         case TAG_FOURCC_NULL:
             break;
     }
+
     return false;
+}
+
+bool tag_fourcc_is_valid(uint32_t tag_group) {
+    if(tag_group == TAG_FOURCC_NONE || tag_group == TAG_FOURCC_NULL) {
+        return true;
+    }
+
+    return tag_fourcc_is_valid_tag(tag_group);
 }

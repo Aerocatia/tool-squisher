@@ -5,6 +5,7 @@
 #include "../tag/tag.h"
 #include "../tag/tag_fourcc.h"
 #include "../resources/resources.h"
+
 #include "bitmap.h"
 
 bool bitmap_final_postprocess(TagID tag, struct tag_data_instance *tag_data) {

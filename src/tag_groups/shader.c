@@ -1,10 +1,10 @@
 #include <stdint.h>
 
-#include "shader.h"
-
 #include "../data_types.h"
 #include "../tag/tag.h"
 #include "../tag/tag_fourcc.h"
+
+#include "shader.h"
 
 bool shader_final_postprocess(TagID tag, struct tag_data_instance *tag_data) {
     struct shader *shader = tag_get(tag, TAG_FOURCC_SHADER, tag_data);

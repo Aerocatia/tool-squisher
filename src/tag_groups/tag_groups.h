@@ -11,6 +11,7 @@
 #include "object.h"
 #include "scenario.h"
 #include "shader.h"
+#include "shader_model.h"
 #include "sound.h"
 #include "unit.h"
 #include "unit_hud_interface.h"
