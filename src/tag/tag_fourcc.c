@@ -3,7 +3,7 @@
 #include "tag_fourcc.h"
 
 #include "../data_types.h"
-#include "../tag_groups/scenario.h"
+#include "../tag_groups/tag_groups.h"
 
 const char *tag_fourcc_to_extension(uint32_t tag_group) {
     switch(tag_group) {
@@ -186,7 +186,7 @@ size_t tag_fourcc_get_base_struct_size(uint32_t tag_group) {
         case TAG_FOURCC_ACTOR:
             return 1272;
         case TAG_FOURCC_ACTOR_VARIANT:
-            return 568;
+            return sizeof(struct actor_variant);
         case TAG_FOURCC_ANTENNA:
             return 208;
         case TAG_FOURCC_MODEL_ANIMATIONS:
@@ -194,7 +194,7 @@ size_t tag_fourcc_get_base_struct_size(uint32_t tag_group) {
         case TAG_FOURCC_BIPED:
             return 1268;
         case TAG_FOURCC_BITMAP:
-            return 108;
+            return sizeof(struct bitmap);
         case TAG_FOURCC_SPHEROID:
             return sizeof(uint32_t);
         case TAG_FOURCC_CONTINUOUS_DAMAGE_EFFECT:
@@ -234,13 +234,13 @@ size_t tag_fourcc_get_base_struct_size(uint32_t tag_group) {
         case TAG_FOURCC_GLOW:
             return 340;
         case TAG_FOURCC_GRENADE_HUD_INTERFACE:
-            return 504;
+            return sizeof(struct grenade_hud_interface);
         case TAG_FOURCC_HUD_MESSAGE_TEXT:
             return 128;
         case TAG_FOURCC_HUD_NUMBER:
-            return 100;
+            return sizeof(struct hud_number);
         case TAG_FOURCC_HUD_GLOBALS:
-            return 1104;
+            return sizeof(struct hud_globals);
         case TAG_FOURCC_ITEM:
             return 776;
         case TAG_FOURCC_ITEM_COLLECTION:
@@ -248,7 +248,7 @@ size_t tag_fourcc_get_base_struct_size(uint32_t tag_group) {
         case TAG_FOURCC_DAMAGE_EFFECT:
             return 672;
         case TAG_FOURCC_LENS_FLARE:
-            return 240;
+            return sizeof(struct lens_flare);
         case TAG_FOURCC_LIGHTNING:
             return 264;
         case TAG_FOURCC_DEVICE_LIGHT_FIXTURE:
@@ -262,19 +262,19 @@ size_t tag_fourcc_get_base_struct_size(uint32_t tag_group) {
         case TAG_FOURCC_GLOBALS:
             return 428;
         case TAG_FOURCC_METER:
-            return 172;
+            return sizeof(struct meter);
         case TAG_FOURCC_LIGHT_VOLUME:
             return 332;
         case TAG_FOURCC_GBXMODEL:
-            return 232;
+            return sizeof(struct model);
         case TAG_FOURCC_MODEL:
-            return 232;
+            return sizeof(struct model);
         case TAG_FOURCC_MULTIPLAYER_SCENARIO_DESCRIPTION:
             return 12;
         case TAG_FOURCC_PREFERENCES_NETWORK_GAME:
             return 896;
         case TAG_FOURCC_OBJECT:
-            return 508;
+            return sizeof(struct object);
         case TAG_FOURCC_PARTICLE:
             return 356;
         case TAG_FOURCC_PARTICLE_SYSTEM:
@@ -304,13 +304,13 @@ size_t tag_fourcc_get_base_struct_size(uint32_t tag_group) {
         case TAG_FOURCC_SHADER_TRANSPARENT_GLASS:
             return 480;
         case TAG_FOURCC_SHADER:
-            return 40;
+            return sizeof(struct shader);
         case TAG_FOURCC_SKY:
             return 208;
         case TAG_FOURCC_SHADER_TRANSPARENT_METER:
             return 260;
         case TAG_FOURCC_SOUND:
-            return 164;
+            return sizeof(struct sound);
         case TAG_FOURCC_SOUND_ENVIRONMENT:
             return 72;
         case TAG_FOURCC_SHADER_MODEL:
@@ -334,9 +334,9 @@ size_t tag_fourcc_get_base_struct_size(uint32_t tag_group) {
         case TAG_FOURCC_DIALOGUE:
             return 4112;
         case TAG_FOURCC_UNIT_HUD_INTERFACE:
-            return 1388;
+            return sizeof(struct unit_hud_interface);
         case TAG_FOURCC_UNIT:
-            return 752;
+            return sizeof(struct unit);
         case TAG_FOURCC_UNICODE_STRING_LIST:
             return 12;
         case TAG_FOURCC_VIRTUAL_KEYBOARD:
@@ -348,7 +348,7 @@ size_t tag_fourcc_get_base_struct_size(uint32_t tag_group) {
         case TAG_FOURCC_WIND:
             return 64;
         case TAG_FOURCC_WEAPON_HUD_INTERFACE:
-            return 380;
+            return sizeof(struct weapon_hud_interface);
         case TAG_FOURCC_NONE:
         case TAG_FOURCC_NULL:
             break;

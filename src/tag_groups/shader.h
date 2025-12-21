@@ -65,11 +65,13 @@ struct shader_radiosity_properties {
     float_rgb_color color;
     float_rgb_color tint_color;
 };
+static_assert(sizeof(struct shader_radiosity_properties) == 32);
 
 struct shader_physics_properties {
     uint16_t flags;
     uint16_t material_type;
 };
+static_assert(sizeof(struct shader_physics_properties) == 4);
 
 struct shader {
     struct shader_radiosity_properties radiosity;
@@ -77,6 +79,7 @@ struct shader {
     uint16_t type;
     uint16_t pad;
 };
+static_assert(sizeof(struct shader) == 40);
 
 #pragma pack(pop)
 
