@@ -23,6 +23,7 @@ add_executable(tool-squisher
     src/tag_groups/meter.c
     src/tag_groups/model.c
     src/tag_groups/scenario.c
+    src/tag_groups/scenario_structure_bsp.c
     src/tag_groups/shader.c
     src/tag_groups/shader_model.c
     src/tag_groups/sound.c

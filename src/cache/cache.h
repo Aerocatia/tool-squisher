@@ -56,6 +56,16 @@ struct cache_file_header {
 };
 static_assert(sizeof(struct cache_file_header) == 2048);
 
+struct cache_file_structure_bsp_header {
+    Pointer32 structure_bsp;
+    uint32_t vertex_buffer_count;
+    Pointer32 vertex_buffers;
+    uint32_t lightmap_vertex_buffer_count;
+    Pointer32 lightmap_vertex_buffers;
+    uint32_t signature;
+};
+static_assert(sizeof(struct cache_file_structure_bsp_header) == 24);
+
 #pragma pack(pop)
 
 struct cache_file_instance {

@@ -40,6 +40,16 @@ typedef struct String32 {
 } String32;
 static_assert(sizeof(String32) == 32);
 
+typedef struct uint8_rectangle3d {
+    uint8_t x0;
+    uint8_t x1;
+    uint8_t y0;
+    uint8_t y1;
+    uint8_t z0;
+    uint8_t z1;
+}uint8_rectangle3d;
+static_assert(sizeof(uint8_rectangle3d) == 6);
+
 typedef struct int16_bounds {
     int16_t lower;
     int16_t upper;
@@ -141,6 +151,12 @@ static_assert(sizeof(float_vector3d) == 12);
 
 typedef float_vector2d float_point2d;
 typedef float_vector3d float_point3d;
+
+typedef struct float_plane3d {
+    float_vector3d n;
+    float d;
+}float_plane3d;
+static_assert(sizeof(float_plane3d) == 16);
 
 typedef struct float_quaternion {
     float_vector3d v;

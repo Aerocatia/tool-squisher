@@ -41,7 +41,7 @@ int main(int argc, const char **argv) {
     return success ? 0 : 1;
 }
 
-static bool postprocess_tag_data(struct tag_data_instance *tag_data);
+static bool postprocess_tag_data(struct cache_file_instance *cache_file);
 static bool postprocess_map(const char *path) {
     assert(path);
 
@@ -69,7 +69,7 @@ static bool postprocess_map(const char *path) {
         case CACHE_FILE_TRACKED_BUILD_0564:
         case CACHE_FILE_TRACKED_BUILD_0609:
         case CACHE_FILE_TRACKED_BUILD_0621:
-            success = postprocess_tag_data(&cache_file.tag_data);
+            success = postprocess_tag_data(&cache_file);
             break;
         case CACHE_FILE_TRACKED_BUILD_UNTRACKED:
             fprintf(stderr, "%s: Unsupported build \"%s\"\n", path, cache_file.header->build_number);
@@ -102,8 +102,18 @@ static bool postprocess_map(const char *path) {
     return success;
 }
 
-static bool postprocess_tag_data(struct tag_data_instance *tag_data) {
-    assert(tag_data && tag_data->valid);
+static bool postprocess_tag_data(struct cache_file_instance *cache_file) {
+    assert(cache_file && cache_file->valid);
+
+    // Fix the BSPs
+    if(!structure_bsps_cached_final_postprocess(cache_file)) {
+        return false;
+    }
+
+    struct tag_data_instance *tag_data = &cache_file->tag_data;
+    assert(tag_data->valid);
+
+    // Go through tag array and fix tags
     for(size_t i = 0; i < tag_data->header->tag_count; i++) {
         struct tag_instance *tag = &tag_data->tags[i];
 

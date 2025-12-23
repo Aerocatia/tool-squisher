@@ -24,7 +24,7 @@ void *tag_resolve_pointer(Pointer32 data_pointer, size_t needed_size, struct tag
 }
 
 void *tag_reflexive_get_element(struct tag_reflexive *reflexive, uint32_t index, size_t size, struct tag_data_instance *tag_data) {
-    assert(tag_data && tag_data->valid);
+    assert(reflexive && tag_data && tag_data->valid);
     if(index >= reflexive->count) {
         return nullptr;
     }

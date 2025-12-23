@@ -10,6 +10,7 @@
 #include "model.h"
 #include "object.h"
 #include "scenario.h"
+#include "scenario_structure_bsp.h"
 #include "shader.h"
 #include "shader_model.h"
 #include "sound.h"
