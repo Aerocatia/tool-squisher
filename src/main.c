@@ -106,7 +106,7 @@ static bool postprocess_tag_data(struct cache_file_instance *cache_file) {
     assert(cache_file && cache_file->valid);
 
     // Fix the BSPs
-    if(!structure_bsps_cached_final_postprocess(cache_file)) {
+    if(!scenario_structure_bsp_postprocess_all_in_cache(cache_file)) {
         return false;
     }
 

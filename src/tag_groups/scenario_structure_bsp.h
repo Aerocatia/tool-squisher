@@ -20,50 +20,6 @@ enum {
 
 #pragma pack(push, 1)
 
-struct structure_bsp {
-    struct tag_reference lightmap_group;
-    float vehicle_floor;
-    float vehicle_ceiling;
-    uint32_t unused0[5];
-    struct render_lighting default_lighting;
-    uint32_t unused1;
-    struct tag_reflexive collision_materials;
-    struct tag_reflexive collision_bsp;
-    struct tag_reflexive nodes;
-    float_rectangle3d world_bounds;
-    struct tag_reflexive leaves;
-    struct tag_reflexive surface_references;
-    struct tag_reflexive surfaces;
-    struct tag_reflexive lightmaps;
-    uint32_t unused2[3];
-    struct tag_reflexive lens_flares;
-    struct tag_reflexive lens_flare_markers;
-    struct tag_reflexive clusters;
-    struct tag_data cluster_data;
-    struct tag_reflexive cluster_portals;
-    uint32_t unused3[3];
-    struct tag_reflexive breakable_surfaces;
-    struct tag_reflexive fog_planes;
-    struct tag_reflexive fog_regions;
-    struct tag_reflexive fog_palette;
-    uint32_t unused4[6];
-    struct tag_reflexive weather_palette;
-    struct tag_reflexive weather_polyhedra;
-    uint32_t unused5[6];
-    struct tag_reflexive pathfinding_surfaces;
-    struct tag_reflexive pathfinding_edges;
-    struct tag_reflexive background_sound_palette;
-    struct tag_reflexive sound_environment_palette;
-    struct tag_data sound_cluster_data;
-    uint32_t unused6[6];
-    struct tag_reflexive markers;
-    struct tag_reflexive detail_object_data;
-    struct tag_reflexive runtime_decals;
-    uint32_t unused7[2];
-    struct leaf_map leaf_map;
-};
-static_assert(sizeof(struct structure_bsp) == 648);
-
 struct structure_collision_material {
     struct tag_reference shader;
     uint16_t pad;
@@ -282,6 +238,50 @@ struct structure_runtime_decal {
 };
 static_assert(sizeof(struct structure_runtime_decal) == 16);
 
+struct structure_bsp {
+    struct tag_reference lightmap_group;
+    float vehicle_floor;
+    float vehicle_ceiling;
+    uint32_t unused0[5];
+    struct render_lighting default_lighting;
+    uint32_t unused1;
+    struct tag_reflexive collision_materials;
+    struct tag_reflexive collision_bsp;
+    struct tag_reflexive nodes;
+    float_rectangle3d world_bounds;
+    struct tag_reflexive leaves;
+    struct tag_reflexive surface_references;
+    struct tag_reflexive surfaces;
+    struct tag_reflexive lightmaps;
+    uint32_t unused2[3];
+    struct tag_reflexive lens_flares;
+    struct tag_reflexive lens_flare_markers;
+    struct tag_reflexive clusters;
+    struct tag_data cluster_data;
+    struct tag_reflexive cluster_portals;
+    uint32_t unused3[3];
+    struct tag_reflexive breakable_surfaces;
+    struct tag_reflexive fog_planes;
+    struct tag_reflexive fog_regions;
+    struct tag_reflexive fog_palette;
+    uint32_t unused4[6];
+    struct tag_reflexive weather_palette;
+    struct tag_reflexive weather_polyhedra;
+    uint32_t unused5[6];
+    struct tag_reflexive pathfinding_surfaces;
+    struct tag_reflexive pathfinding_edges;
+    struct tag_reflexive background_sound_palette;
+    struct tag_reflexive sound_environment_palette;
+    struct tag_data sound_cluster_data;
+    uint32_t unused6[6];
+    struct tag_reflexive markers;
+    struct tag_reflexive detail_object_data;
+    struct tag_reflexive runtime_decals;
+    uint32_t unused7[2];
+    struct leaf_map leaf_map;
+};
+static_assert(sizeof(struct structure_bsp) == 648);
+
 #pragma pack(pop)
 
-bool structure_bsps_cached_final_postprocess(struct cache_file_instance *cache_file);
+bool scenario_structure_bsp_postprocess_all_in_cache(struct cache_file_instance *cache_file);
