@@ -94,4 +94,4 @@ static_assert(sizeof(struct shader_model) == 440);
 
 #pragma pack(pop)
 
-bool shader_model_final_postprocess(TagID tag, struct tag_data_instance *tag_data);
+bool shader_model_postprocess(TagID tag, struct tag_data_instance *tag_data);

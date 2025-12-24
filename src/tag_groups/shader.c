@@ -6,7 +6,7 @@
 
 #include "shader.h"
 
-bool shader_final_postprocess(TagID tag, struct tag_data_instance *tag_data) {
+bool shader_postprocess(TagID tag, struct tag_data_instance *tag_data) {
     struct shader *shader = tag_get(tag, TAG_FOURCC_SHADER, tag_data);
     if(!shader) {
         fprintf(stderr,"tag data for \"%s.%s\" is invalid\n", tag_path_get(tag, tag_data), tag_extension_get(tag, tag_data));

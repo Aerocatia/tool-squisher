@@ -11,7 +11,7 @@
 
 #define PROCESS_CHILD_ANCHOR(anchor) tag_process_enum16(anchor, NUMBER_OF_HUD_CHILD_ANCHORS, HUD_CHILD_ANCHOR_FROM_PARENT)
 
-bool weapon_hud_interface_final_postprocess(TagID tag, struct tag_data_instance *tag_data) {
+bool weapon_hud_interface_postprocess(TagID tag, struct tag_data_instance *tag_data) {
     struct weapon_hud_interface *weapon_hud = tag_get(tag, TAG_FOURCC_WEAPON_HUD_INTERFACE, tag_data);
     if(!weapon_hud) {
         fprintf(stderr,"tag data for \"%s.%s\" is invalid\n", tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_WEAPON_HUD_INTERFACE));

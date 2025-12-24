@@ -169,4 +169,4 @@ static_assert(sizeof(struct model) == 232);
 #define model_get_geometry_part(geometry, index, data) tag_reflexive_get_element(&(geometry)->parts, index, sizeof(struct model_geometry_part), data)
 #define gbxmodel_get_geometry_part(geometry, index, data) tag_reflexive_get_element(&(geometry)->parts, index, sizeof(struct gbxmodel_geometry_part), data)
 
-bool gbxmodel_final_postprocess(TagID tag, struct tag_data_instance *tag_data);
+bool gbxmodel_postprocess(TagID tag, struct tag_data_instance *tag_data);

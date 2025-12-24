@@ -217,4 +217,4 @@ static_assert(sizeof(struct weapon_hud_interface) == 380);
 #define weapon_hud_get_crosshairs_item(crosshair, index, data) tag_reflexive_get_element(&(crosshair)->crosshairs.items, index, sizeof(struct weapon_hud_crosshair_item), data)
 #define weapon_hud_get_overlays_element(hud, index, data) tag_reflexive_get_element(&(hud)->overlays, index, sizeof(struct weapon_hud_overlays_element), data)
 
-bool weapon_hud_interface_final_postprocess(TagID tag, struct tag_data_instance *tag_data);
+bool weapon_hud_interface_postprocess(TagID tag, struct tag_data_instance *tag_data);

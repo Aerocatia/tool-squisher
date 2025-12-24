@@ -190,4 +190,4 @@ static_assert(sizeof(struct actor_variant) == 568);
 
 #define actor_variant_get_change_colors(variant, index, data) tag_reflexive_get_element(&(variant)->change_colors, index, sizeof(struct actor_variant_change_colors), data)
 
-bool actor_variant_final_postprocess(TagID tag, struct tag_data_instance *tag_data);
+bool actor_variant_postprocess(TagID tag, struct tag_data_instance *tag_data);

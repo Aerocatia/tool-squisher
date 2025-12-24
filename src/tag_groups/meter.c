@@ -7,7 +7,7 @@
 
 #include "meter.h"
 
-bool meter_final_postprocess(TagID tag, struct tag_data_instance *tag_data) {
+bool meter_postprocess(TagID tag, struct tag_data_instance *tag_data) {
     struct meter *meter = tag_get(tag, TAG_FOURCC_METER, tag_data);
     if(!meter) {
         fprintf(stderr,"tag data for \"%s.%s\" is invalid\n", tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_METER));

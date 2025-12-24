@@ -102,4 +102,4 @@ static_assert(sizeof(struct lens_flare) == 240);
 
 #pragma pack(pop)
 
-bool lens_flare_final_postprocess(TagID tag, struct tag_data_instance *tag_data);
+bool lens_flare_postprocess(TagID tag, struct tag_data_instance *tag_data);

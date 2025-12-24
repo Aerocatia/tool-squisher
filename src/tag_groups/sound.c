@@ -77,7 +77,7 @@ static float_bounds sound_get_default_distance_values_for_class(uint16_t sound_c
     return defaults;
 }
 
-bool sound_final_postprocess(TagID tag, struct tag_data_instance *tag_data) {
+bool sound_postprocess(TagID tag, struct tag_data_instance *tag_data) {
     struct sound *sound = tag_get(tag, TAG_FOURCC_SOUND, tag_data);
     if(!sound) {
         fprintf(stderr,"tag data for \"%s.%s\" is invalid\n", tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SOUND));

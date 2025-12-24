@@ -9,7 +9,7 @@
 #include "scenario.h"
 #include "scenario/ai.h"
 
-bool scenario_final_postprocess(TagID tag, struct tag_data_instance *tag_data) {
+bool scenario_postprocess(TagID tag, struct tag_data_instance *tag_data) {
     struct scenario *scenario = tag_get(tag, TAG_FOURCC_SCENARIO, tag_data);
     if(!scenario) {
         fprintf(stderr,"tag data for \"%s.%s\" is invalid\n", tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SCENARIO));

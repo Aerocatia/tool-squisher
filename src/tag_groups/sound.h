@@ -163,4 +163,4 @@ static_assert(sizeof(struct sound) == 164);
 #define sound_get_pitch_range(sound, index, data) tag_reflexive_get_element(&(sound)->pitch_ranges, index, sizeof(struct sound_pitch_range), data)
 #define sound_get_permutation(pitch_range, index, data) tag_reflexive_get_element(&(pitch_range)->permutations, index, sizeof(struct sound_permutation), data)
 
-bool sound_final_postprocess(TagID tag, struct tag_data_instance *tag_data);
+bool sound_postprocess(TagID tag, struct tag_data_instance *tag_data);

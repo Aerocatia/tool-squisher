@@ -62,4 +62,4 @@ static_assert(sizeof(struct meter) == 172);
 
 #pragma pack(pop)
 
-bool meter_final_postprocess(TagID tag, struct tag_data_instance *tag_data);
+bool meter_postprocess(TagID tag, struct tag_data_instance *tag_data);

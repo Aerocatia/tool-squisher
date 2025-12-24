@@ -16,7 +16,7 @@ void unit_process_metagame_properties(struct unit_metagame_properties *metagame_
     tag_process_enum16(&metagame_properties->metagame_class, NUMBER_OF_UNIT_METAGAME_CLASSES, UNIT_METAGAME_CLASS_INFANTRY);
 }
 
-bool uint_final_postprocess(TagID tag, struct tag_data_instance *tag_data) {
+bool uint_postprocess(TagID tag, struct tag_data_instance *tag_data) {
     struct unit *unit = tag_get(tag, TAG_FOURCC_UNIT, tag_data);
     if(!unit) {
         fprintf(stderr,"tag data for \"%s.%s\" is invalid\n", tag_path_get(tag, tag_data), tag_extension_get(tag, tag_data));

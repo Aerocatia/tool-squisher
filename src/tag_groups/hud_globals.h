@@ -97,4 +97,4 @@ static_assert(sizeof(struct hud_globals) == 1104);
 
 #pragma pack(pop)
 
-bool hud_globals_final_postprocess(TagID tag, struct tag_data_instance *tag_data);
+bool hud_globals_postprocess(TagID tag, struct tag_data_instance *tag_data);

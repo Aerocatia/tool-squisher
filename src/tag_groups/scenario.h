@@ -109,4 +109,4 @@ static_assert(sizeof(struct scenario) == 1456);
 
 #define scenario_get_bsp_reference(scenario, index, data) tag_reflexive_get_element(&(scenario)->structure_bsp_references, index, sizeof(struct scenario_structure_bsp_reference), data)
 
-bool scenario_final_postprocess(TagID tag, struct tag_data_instance *tag_data);
+bool scenario_postprocess(TagID tag, struct tag_data_instance *tag_data);

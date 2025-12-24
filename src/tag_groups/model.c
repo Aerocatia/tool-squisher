@@ -7,7 +7,7 @@
 
 #include "model.h"
 
-bool gbxmodel_final_postprocess(TagID tag, struct tag_data_instance *tag_data) {
+bool gbxmodel_postprocess(TagID tag, struct tag_data_instance *tag_data) {
     struct model *gbxmodel = tag_get(tag, TAG_FOURCC_GBXMODEL, tag_data);
     if(!gbxmodel) {
         fprintf(stderr,"tag data for \"%s.%s\" is invalid\n", tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_GBXMODEL));

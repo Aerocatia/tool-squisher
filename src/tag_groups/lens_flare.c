@@ -7,7 +7,7 @@
 
 #include "lens_flare.h"
 
-bool lens_flare_final_postprocess(TagID tag, struct tag_data_instance *tag_data) {
+bool lens_flare_postprocess(TagID tag, struct tag_data_instance *tag_data) {
     struct lens_flare *lens_flare = tag_get(tag, TAG_FOURCC_LENS_FLARE, tag_data);
     if(!lens_flare) {
         fprintf(stderr,"tag data for \"%s.%s\" is invalid\n", tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_LENS_FLARE));

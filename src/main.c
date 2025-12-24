@@ -119,7 +119,7 @@ static bool postprocess_tag_data(struct cache_file_instance *cache_file) {
 
         // The base sound struct is always in the map, even if external
         if(tag->primary_group == TAG_FOURCC_SOUND) {
-            if(sound_final_postprocess(tag->tag_id, tag_data)) {
+            if(sound_postprocess(tag->tag_id, tag_data)) {
                 continue;
             }
             else {
@@ -134,13 +134,13 @@ static bool postprocess_tag_data(struct cache_file_instance *cache_file) {
 
         // Process shaders
         if(tag->primary_group == TAG_FOURCC_SHADER || tag->secondary_group == TAG_FOURCC_SHADER || tag->tertiary_group == TAG_FOURCC_SHADER) {
-            if(!shader_final_postprocess(tag->tag_id, tag_data)) {
+            if(!shader_postprocess(tag->tag_id, tag_data)) {
                 return false;
             }
         }
         // Process units
         else if(tag->secondary_group == TAG_FOURCC_UNIT && tag->tertiary_group == TAG_FOURCC_OBJECT) {
-            if(!uint_final_postprocess(tag->tag_id, tag_data)) {
+            if(!uint_postprocess(tag->tag_id, tag_data)) {
                 return false;
             }
         }
@@ -148,57 +148,57 @@ static bool postprocess_tag_data(struct cache_file_instance *cache_file) {
         // Process other base tags
         switch(tag->primary_group) {
             case TAG_FOURCC_ACTOR_VARIANT:
-                if(!actor_variant_final_postprocess(tag->tag_id, tag_data)) {
+                if(!actor_variant_postprocess(tag->tag_id, tag_data)) {
                     return false;
                 }
                 break;
             case TAG_FOURCC_BITMAP:
-                if(!bitmap_final_postprocess(tag->tag_id, tag_data)) {
+                if(!bitmap_postprocess(tag->tag_id, tag_data)) {
                     return false;
                 }
                 break;
             case TAG_FOURCC_LENS_FLARE:
-                if(!lens_flare_final_postprocess(tag->tag_id, tag_data)) {
+                if(!lens_flare_postprocess(tag->tag_id, tag_data)) {
                     return false;
                 }
                 break;
             case TAG_FOURCC_METER:
-                if(!meter_final_postprocess(tag->tag_id, tag_data)) {
+                if(!meter_postprocess(tag->tag_id, tag_data)) {
                     return false;
                 }
                 break;
             case TAG_FOURCC_GBXMODEL:
-                if(!gbxmodel_final_postprocess(tag->tag_id, tag_data)) {
+                if(!gbxmodel_postprocess(tag->tag_id, tag_data)) {
                     return false;
                 }
                 break;
             case TAG_FOURCC_SCENARIO:
-                if(!scenario_final_postprocess(tag->tag_id, tag_data)) {
+                if(!scenario_postprocess(tag->tag_id, tag_data)) {
                     return false;
                 }
                 break;
             case TAG_FOURCC_SHADER_MODEL:
-                if(!shader_model_final_postprocess(tag->tag_id, tag_data)) {
+                if(!shader_model_postprocess(tag->tag_id, tag_data)) {
                     return false;
                 }
                 break;
             case TAG_FOURCC_GRENADE_HUD_INTERFACE:
-                if(!grenade_hud_interface_final_postprocess(tag->tag_id, tag_data)) {
+                if(!grenade_hud_interface_postprocess(tag->tag_id, tag_data)) {
                     return false;
                 }
                 break;
             case TAG_FOURCC_HUD_GLOBALS:
-                if(!hud_globals_final_postprocess(tag->tag_id, tag_data)) {
+                if(!hud_globals_postprocess(tag->tag_id, tag_data)) {
                     return false;
                 }
                 break;
             case TAG_FOURCC_UNIT_HUD_INTERFACE:
-                if(!unit_hud_interface_final_postprocess(tag->tag_id, tag_data)) {
+                if(!unit_hud_interface_postprocess(tag->tag_id, tag_data)) {
                     return false;
                 }
                 break;
             case TAG_FOURCC_WEAPON_HUD_INTERFACE:
-                if(!weapon_hud_interface_final_postprocess(tag->tag_id, tag_data)) {
+                if(!weapon_hud_interface_postprocess(tag->tag_id, tag_data)) {
                     return false;
                 }
         }

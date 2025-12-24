@@ -123,4 +123,4 @@ static_assert(sizeof(struct shader_texture_animation) == 56);
 
 #pragma pack(pop)
 
-bool shader_final_postprocess(TagID tag, struct tag_data_instance *tag_data);
+bool shader_postprocess(TagID tag, struct tag_data_instance *tag_data);

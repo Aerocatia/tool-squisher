@@ -9,7 +9,7 @@
 #include "hud_types.h"
 #include "hud_globals.h"
 
-bool hud_globals_final_postprocess(TagID tag, struct tag_data_instance *tag_data) {
+bool hud_globals_postprocess(TagID tag, struct tag_data_instance *tag_data) {
     struct hud_globals *hud_globals = tag_get(tag, TAG_FOURCC_HUD_GLOBALS, tag_data);
     if(!hud_globals) {
         fprintf(stderr,"tag data for \"%s.%s\" is invalid\n", tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_HUD_GLOBALS));

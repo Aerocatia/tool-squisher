@@ -116,4 +116,4 @@ static_assert(sizeof(struct unit_hud_interface) == 1388);
 
 #define unit_hud_get_auxiliary_meter_element(hud, index, data) tag_reflexive_get_element(&(hud)->auxiliary_meters, index, sizeof(struct uint_hud_auxiliary_meter_element), data)
 
-bool unit_hud_interface_final_postprocess(TagID tag, struct tag_data_instance *tag_data);
+bool unit_hud_interface_postprocess(TagID tag, struct tag_data_instance *tag_data);

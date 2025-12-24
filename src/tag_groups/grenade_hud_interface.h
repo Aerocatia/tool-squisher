@@ -47,4 +47,4 @@ static_assert(sizeof(struct grenade_hud_interface) == 504);
 
 #pragma pack(pop)
 
-bool grenade_hud_interface_final_postprocess(TagID tag, struct tag_data_instance *tag_data);
+bool grenade_hud_interface_postprocess(TagID tag, struct tag_data_instance *tag_data);

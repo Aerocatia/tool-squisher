@@ -184,4 +184,4 @@ static_assert(sizeof(struct bitmap) == 108);
 #define bitmap_get_sprite(sequence, index, data) tag_reflexive_get_element(&(sequence)->sprites, index, sizeof(struct bitmap_sprite), data)
 #define bitmap_get_data(bitmap, index, data) tag_reflexive_get_element(&(bitmap)->bitmaps, index, sizeof(struct bitmap_data), data)
 
-bool bitmap_final_postprocess(TagID tag, struct tag_data_instance *tag_data);
+bool bitmap_postprocess(TagID tag, struct tag_data_instance *tag_data);
