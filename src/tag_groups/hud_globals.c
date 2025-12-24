@@ -21,7 +21,7 @@ bool hud_globals_postprocess(TagID tag, struct tag_data_instance *tag_data) {
     // as these are the last thing defined in the tag. We zero it out here so it can be extracted.
     if(hud_globals->bitmap_remaps.count != 0) {
         memset(&hud_globals->bitmap_remaps, 0, sizeof(struct tag_reflexive));
-        fprintf(stderr,"Warning: HUD globals tag \"%s.%s\" had MCC CEA bitmap remaps\nThis was likely corrupted by the older tool.exe so the reflexive was zeroed out\n", tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_HUD_GLOBALS));
+        fprintf(stderr,"HUD globals tag \"%s.%s\" had MCC CEA bitmap remaps\nthis was likely corrupted by the older tool.exe so the reflexive was zeroed out\n", tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_HUD_GLOBALS));
     }
 
     // Absolute placement

@@ -19,7 +19,7 @@ bool scenario_postprocess(TagID tag, struct tag_data_instance *tag_data) {
     // These can never be valid if the map was compiled with the expected tool versions, so zero it.
     if(scenario->scavenger_hunt_objects.count != 0) {
         memset(&scenario->scavenger_hunt_objects, 0, sizeof(struct tag_reflexive));
-        fprintf(stderr,"Warning: Scenario tag \"%s.%s\" had scavenger hunt objects\nThis was likely corrupted by the older tool.exe so the reflexive was zeroed out\n", tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SCENARIO));
+        fprintf(stderr,"scenario tag \"%s.%s\" had scavenger hunt objects\nthis was likely corrupted by the older tool.exe so the reflexive was zeroed out\n", tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SCENARIO));
     }
 
     for(size_t c = 0; c < scenario->ai_conversations.count; c++) {
