@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 4.0)
 
 project(ToolSquisher
-    VERSION 1.4.1
+    VERSION 1.4.2
     DESCRIPTION "Tool to fix Halo CE map errors caused by tool.exe bugs"
     LANGUAGES C
 )
