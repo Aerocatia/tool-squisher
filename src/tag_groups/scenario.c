@@ -16,6 +16,9 @@ bool scenario_postprocess(TagID tag, struct tag_data_instance *tag_data) {
         return false;
     }
 
+    // Ensure this flag is unset so tag extractors don't assume it worked, as it would have been ignored by the older tool versions.
+    SET_FLAG(scenario->flags, SCENARIO_FLAGS_DO_NOT_APPLY_BUNGIE_CAMPAIGN_TAG_PATCHES_BIT, false);
+
     // These can never be valid if the map was compiled with the expected tool versions, so zero it.
     if(scenario->scavenger_hunt_objects.count != 0) {
         memset(&scenario->scavenger_hunt_objects, 0, sizeof(struct tag_reflexive));
