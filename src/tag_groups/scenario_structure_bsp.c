@@ -115,6 +115,12 @@ bool scenario_structure_bsp_postprocess_all_in_cache(struct cache_file_instance 
                 if(material->lightmap_vertices.count > 0) {
                     material->lightmap_vertices.type = RASTERIZER_VERTEX_TYPE_ENVIRONMENT_LIGHTMAP_UNCOMPRESSED;
                 }
+
+                // Zero stale pointers. These are set when loaded, so anything here will be from a previous load.
+                material->vertices.base_address = 0;
+                material->vertices.hardware_format = 0;
+                material->lightmap_vertices.base_address = 0;
+                material->lightmap_vertices.hardware_format = 0;
             }
         }
 
