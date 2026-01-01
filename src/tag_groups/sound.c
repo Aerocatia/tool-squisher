@@ -109,7 +109,7 @@ bool sound_postprocess(TagID tag, struct tag_data_instance *tag_data) {
             return false;
         }
 
-        for(size_t p = 0; p < sound->pitch_ranges.count; p++) {
+        for(size_t p = 0; p < pitch_range->permutations.count; p++) {
             struct sound_permutation *permutation = sound_get_permutation(pitch_range, p, tag_data);
             if(!permutation) {
                 fprintf(stderr,"sound permutation %zu of pitch range %zu in \"%s.%s\" is out of bounds\n", p, pr, tag_path, tag_fourcc_to_extension(TAG_FOURCC_SOUND));
