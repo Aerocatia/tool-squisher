@@ -9,6 +9,27 @@
 
 static const char *TAG_INVALID_PATH = "<invalid>";
 
+bool tag_id_is_valid_tag(TagID tag, struct tag_data_instance *tag_data) {
+    assert(tag_data && tag_data->valid);
+    auto tag_count = tag_data->header->tag_count;
+    if(tag.whole_id == NULL_ID || tag.index >= tag_count) {
+        return false;
+    }
+
+    return tag_data->tags[tag.index].tag_id.whole_id == tag.whole_id ? true : false;
+}
+
+bool tag_is_external(TagID tag, struct tag_data_instance *tag_data) {
+    assert(tag_data && tag_data->valid);
+
+    // lol
+    if(!tag_id_is_valid_tag(tag, tag_data)) {
+        return false;
+    }
+
+    return tag_data->tags[tag.index].external ? true : false;
+}
+
 void *tag_resolve_pointer(Pointer32 data_pointer, size_t needed_size, struct tag_data_instance *tag_data) {
     assert(tag_data && tag_data->data);
     if(data_pointer < tag_data->data_load_address) {

@@ -121,6 +121,23 @@ struct shader_texture_animation {
 };
 static_assert(sizeof(struct shader_texture_animation) == 56);
 
+struct _shader_decal {
+    uint16_t flags;
+    uint16_t type;
+    uint16_t framebuffer_blend_function;
+    uint16_t pad;
+    uint32_t unused1[5];
+    struct tag_reference map;
+    uint32_t unused2[5];
+};
+static_assert(sizeof(struct _shader_decal) == 64);
+
+struct shader_decal {
+    struct _shader shader;
+    struct _shader_decal decal;
+};
+static_assert(sizeof(struct shader_decal) == 104);
+
 #pragma pack(pop)
 
 bool shader_postprocess(TagID tag, struct tag_data_instance *tag_data);

@@ -209,7 +209,7 @@ size_t tag_fourcc_get_base_struct_size(uint32_t tag_group) {
         case TAG_FOURCC_DEVICE_CONTROL:
             return 792;
         case TAG_FOURCC_DECAL:
-            return 268;
+            return sizeof(struct decal);
         case TAG_FOURCC_UI_WIDGET_DEFINITION:
             return 1004;
         case TAG_FOURCC_INPUT_DEVICE_DEFAULTS:

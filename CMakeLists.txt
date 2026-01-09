@@ -16,6 +16,7 @@ add_executable(tool-squisher
     src/tag/tag_processing.c
     src/tag_groups/actor_variant.c
     src/tag_groups/bitmap.c
+    src/tag_groups/decal.c
     src/tag_groups/grenade_hud_interface.c
     src/tag_groups/hud_globals.c
     src/tag_groups/hud_types.c

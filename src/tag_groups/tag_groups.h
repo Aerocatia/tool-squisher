@@ -2,6 +2,7 @@
 
 #include "actor_variant.h"
 #include "bitmap.h"
+#include "decal.h"
 #include "grenade_hud_interface.h"
 #include "hud_globals.h"
 #include "hud_number.h"

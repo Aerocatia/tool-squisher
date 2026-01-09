@@ -11,6 +11,8 @@
 #define HALO_QUARTER_PI 0.7853981633974f
 #define HALO_FLOAT_EPSILON 0.0001f
 
+#define MIN(a,b) ((a)>(b)?(b):(a))
+#define MAX(a,b) ((a)>(b)?(a):(b))
 #define DEGREES_TO_RADIANS(deg) (deg * 0.01745329251994f)
 #define RADIANS_TO_DEGREES(rad) (rad * 57.29577951308f)
 #define FLOOR(n, floor) ((n)<(floor)?(floor):(n))

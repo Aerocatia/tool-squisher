@@ -157,6 +157,11 @@ static bool postprocess_tag_data(struct cache_file_instance *cache_file) {
                     return false;
                 }
                 break;
+            case TAG_FOURCC_DECAL:
+                if(!decal_postprocess(tag->tag_id, tag_data)) {
+                    return false;
+                }
+                break;
             case TAG_FOURCC_LENS_FLARE:
                 if(!lens_flare_postprocess(tag->tag_id, tag_data)) {
                     return false;
