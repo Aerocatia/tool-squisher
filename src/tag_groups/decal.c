@@ -70,24 +70,23 @@ bool decal_postprocess(TagID tag, struct tag_data_instance *tag_data) {
         return false;
     }
 
-    // tool.exe has code to calculate the maximum sprite extent, but for some reason the bitmap
-    // tag id is always considered to be NULL_ID when the code is run, so it always defaults to 16.0f
+    // tool.exe has code to calculate the maximum sprite extent, but for some reason it's
+    // considered to have no bitmap when the code is run so it always defaults to 16.0f
     auto map = decal->shader.decal.map.index;
-    if(map.whole_id == NULL_ID) {
+    if(!TEST_FLAG(decal->flags, DECAL_FLAGS_SPRITE_SCALE_BUG_FIX_BIT) || map.whole_id == NULL_ID) {
         decal->runtime_maximum_sprite_extent = 16.0f;
         return true;
     }
 
-    // Do what tool.exe was intending to do
+    // Calculate runtime_maximum_sprite_extent based on the bitmap
     if(!tag_id_is_valid_tag(map, tag_data)) {
         fprintf(stderr,"decal \"%s.%s\" references an invalid bitmap\n",
         tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_DECAL));
         return false;
     }
 
-    // We are going to cheat here and use a pre-calculated value for bitmaps stored in bitmaps.map since we know that they are.
-    // Yes this does mean you go to the shadow realm if the bitmaps.map contains a completely different custom sprite, but this
-    // was always going to be a problem. Ideally the game would re-calculate this on map load when loading external bitmap tags.
+    // Cheat here and use a pre-calculated value for bitmaps stored in Custom Edition bitmaps.map since we know what they are
+    // Ideally the game would re-calculate this on map load when loading external bitmap tags
     if(tag_is_external(map, tag_data)) {
         for(size_t i = 0; i < NUMBER_OF_RESOURCE_MAP_DECAL_BITMAPS; i++) {
             if(strcmp(tag_path_get(map, tag_data), decal_external_bitmaps[i]) == 0) {
@@ -96,8 +95,8 @@ bool decal_postprocess(TagID tag, struct tag_data_instance *tag_data) {
             }
         }
 
-        fprintf(stderr,"external bitmap \"%s.%s\" does not map to a known decal bitmap and can not be processed by this tool\n",
-        tag_path_get(map, tag_data), tag_fourcc_to_extension(TAG_FOURCC_BITMAP));
+        fprintf(stderr,"decal \"%s.%s\" references external bitmap \"%s.%s\" that does not match a known decal bitmap and cannot be processed by this tool\n",
+        tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_DECAL), tag_path_get(map, tag_data), tag_fourcc_to_extension(TAG_FOURCC_BITMAP));
         return false;
     }
 
