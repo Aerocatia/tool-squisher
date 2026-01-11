@@ -12,7 +12,9 @@
 bool scenario_postprocess(TagID tag, struct tag_data_instance *tag_data) {
     struct scenario *scenario = tag_get(tag, TAG_FOURCC_SCENARIO, tag_data);
     if(!scenario) {
-        fprintf(stderr,"tag data for \"%s.%s\" is invalid\n", tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SCENARIO));
+        fprintf(stderr, "tag data for \"%s.%s\" is invalid\n",
+            tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SCENARIO)
+        );
         return false;
     }
 
@@ -22,20 +24,26 @@ bool scenario_postprocess(TagID tag, struct tag_data_instance *tag_data) {
     // These can never be valid if the map was compiled with the expected tool versions, so zero it.
     if(scenario->scavenger_hunt_objects.count != 0) {
         memset(&scenario->scavenger_hunt_objects, 0, sizeof(struct tag_reflexive));
-        fprintf(stderr,"scenario tag \"%s.%s\" had scavenger hunt objects\nthis was likely corrupted by the older tool.exe so the reflexive was zeroed out\n", tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SCENARIO));
+        fprintf(stderr, "scenario tag \"%s.%s\" had scavenger hunt objects\nthis was likely corrupted by the older tool.exe so the reflexive was zeroed out\n",
+            tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SCENARIO)
+        );
     }
 
     for(size_t c = 0; c < scenario->ai_conversations.count; c++) {
         struct ai_conversation *conversation = scenario_get_ai_conversation(scenario, c, tag_data);
         if(!conversation) {
-            fprintf(stderr,"ai conversation %zu in \"%s.%s\" is out of bounds\n", c, tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SCENARIO));
+            fprintf(stderr, "ai conversation %zu in \"%s.%s\" is out of bounds\n",
+                c, tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SCENARIO)
+            );
             return false;
         }
 
         for(size_t p = 0; p < conversation->participants.count; p++) {
             struct ai_conversation_participant *participant = scenario_get_ai_conversation_participant(conversation, p, tag_data);
             if(!participant) {
-                fprintf(stderr,"ai conversation participant %zu in \"%s.%s\" is out of bounds\n", p, tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SCENARIO));
+                fprintf(stderr, "ai conversation participant %zu in \"%s.%s\" is out of bounds\n",
+                    p, tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SCENARIO)
+                );
                 return false;
             }
 
@@ -43,7 +51,9 @@ bool scenario_postprocess(TagID tag, struct tag_data_instance *tag_data) {
             for(size_t l = 0; l < conversation->lines.count; l++) {
                 struct ai_conversation_line *line = scenario_get_ai_conversation_line(conversation, l, tag_data);
                 if(!line) {
-                    fprintf(stderr,"ai conversation line %zu in \"%s.%s\" is out of bounds\n", l, tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SCENARIO));
+                    fprintf(stderr, "ai conversation line %zu in \"%s.%s\" is out of bounds\n",
+                        l, tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SCENARIO)
+                    );
                     return false;
                 }
 
@@ -75,6 +85,7 @@ bool scenario_postprocess(TagID tag, struct tag_data_instance *tag_data) {
                     }
                 }
             }
+
             memcpy(participant->dialogue_variants, variant_numbers, sizeof(variant_numbers));
         }
     }

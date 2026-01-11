@@ -86,7 +86,9 @@ static bool postprocess_map(const char *path) {
     }
 
     // Set build string to a specific value so we do not process this again.
-    strncpy(cache_file.header->build_number, cache_file_tracked_builds[CACHE_FILE_TRACKED_BUILD_TOOL_SQUISHER], sizeof(cache_file.header->build_number));
+    strncpy(cache_file.header->build_number,
+        cache_file_tracked_builds[CACHE_FILE_TRACKED_BUILD_TOOL_SQUISHER], sizeof(cache_file.header->build_number)
+    );
     if(!cache_file_fix_checksum(&cache_file)) {
         fprintf(stderr, "%s: Failed to calculate cache file checksum\n", path);
         cache_file_unload(&cache_file);
@@ -117,23 +119,11 @@ static bool postprocess_tag_data(struct cache_file_instance *cache_file) {
     for(size_t i = 0; i < tag_data->header->tag_count; i++) {
         struct tag_instance *tag = &tag_data->tags[i];
 
-        // The base sound struct is always in the map, even if external
-        if(tag->primary_group == TAG_FOURCC_SOUND) {
-            if(sound_postprocess(tag->tag_id, tag_data)) {
-                continue;
-            }
-            else {
-                return false;
-            }
-        }
-
-        // No tag data
-        if(tag->external) {
-            continue;
-        }
-
         // Process shaders
-        if(tag->primary_group == TAG_FOURCC_SHADER || tag->secondary_group == TAG_FOURCC_SHADER || tag->tertiary_group == TAG_FOURCC_SHADER) {
+        if(tag->primary_group == TAG_FOURCC_SHADER ||
+            tag->secondary_group == TAG_FOURCC_SHADER ||
+            tag->tertiary_group == TAG_FOURCC_SHADER
+        ) {
             if(!shader_postprocess(tag->tag_id, tag_data)) {
                 return false;
             }
@@ -184,6 +174,11 @@ static bool postprocess_tag_data(struct cache_file_instance *cache_file) {
                 break;
             case TAG_FOURCC_SHADER_MODEL:
                 if(!shader_model_postprocess(tag->tag_id, tag_data)) {
+                    return false;
+                }
+                break;
+            case TAG_FOURCC_SOUND:
+                if(!sound_postprocess(tag->tag_id, tag_data)) {
                     return false;
                 }
                 break;

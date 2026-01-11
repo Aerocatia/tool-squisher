@@ -65,8 +65,9 @@ static_assert(sizeof(decal_external_bitmap_extents) / sizeof(float) == NUMBER_OF
 bool decal_postprocess(TagID tag, struct tag_data_instance *tag_data) {
     struct decal *decal = tag_get(tag, TAG_FOURCC_DECAL, tag_data);
     if(!decal) {
-        fprintf(stderr,"tag data for \"%s.%s\" is invalid\n",
-        tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_DECAL));
+        fprintf(stderr, "tag data for \"%s.%s\" is invalid\n",
+            tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_DECAL)
+        );
         return false;
     }
 
@@ -80,8 +81,9 @@ bool decal_postprocess(TagID tag, struct tag_data_instance *tag_data) {
 
     // Calculate runtime_maximum_sprite_extent based on the bitmap
     if(!tag_id_is_valid_tag(map, tag_data)) {
-        fprintf(stderr,"decal \"%s.%s\" references an invalid bitmap\n",
-        tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_DECAL));
+        fprintf(stderr, "decal \"%s.%s\" references an invalid bitmap\n",
+            tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_DECAL)
+        );
         return false;
     }
 
@@ -95,15 +97,19 @@ bool decal_postprocess(TagID tag, struct tag_data_instance *tag_data) {
             }
         }
 
-        fprintf(stderr,"decal \"%s.%s\" references external bitmap \"%s.%s\" that does not match a known decal bitmap and cannot be processed by this tool\n",
-        tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_DECAL), tag_path_get(map, tag_data), tag_fourcc_to_extension(TAG_FOURCC_BITMAP));
+        fprintf(stderr, "decal \"%s.%s\" references external bitmap \"%s.%s\" that does not match a known decal bitmap and cannot be processed by this tool\n",
+            tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_DECAL),
+            tag_path_get(map, tag_data), tag_fourcc_to_extension(TAG_FOURCC_BITMAP)
+        );
         return false;
     }
 
     struct bitmap *bitmap_group = tag_get(map, TAG_FOURCC_BITMAP, tag_data);
     if(!bitmap_group) {
-        fprintf(stderr,"tag data for \"%s.%s\" is invalid\n",
-        tag_path_get(map, tag_data), tag_fourcc_to_extension(TAG_FOURCC_BITMAP));
+        fprintf(stderr, "tag data for \"%s.%s\" is invalid\n",
+            tag_path_get(map, tag_data), tag_fourcc_to_extension(TAG_FOURCC_BITMAP)
+        );
+        return false;
     }
 
     float max_sprite_extent = 0.0f;
@@ -111,23 +117,26 @@ bool decal_postprocess(TagID tag, struct tag_data_instance *tag_data) {
         for(size_t sequence_index = 0; sequence_index < bitmap_group->sequences.count; sequence_index++) {
             struct bitmap_sequence *sequence = bitmap_get_sequence(bitmap_group, sequence_index, tag_data);
             if(!sequence) {
-                fprintf(stderr,"bitmap sequence %zu in \"%s.%s\" is out of bounds\n",
-                sequence_index, tag_path_get(map, tag_data), tag_fourcc_to_extension(TAG_FOURCC_BITMAP));
+                fprintf(stderr, "bitmap sequence %zu in \"%s.%s\" is out of bounds\n",
+                    sequence_index, tag_path_get(map, tag_data), tag_fourcc_to_extension(TAG_FOURCC_BITMAP)
+                );
                 return false;
             }
 
             for(size_t sprite_index = 0; sprite_index < sequence->sprites.count; sprite_index++) {
                 struct bitmap_sprite *sprite = bitmap_get_sprite(sequence, sprite_index, tag_data);
                 if(!sprite) {
-                    fprintf(stderr,"bitmap sprite %zu of sequence %zu in \"%s.%s\" is out of bounds\n",
-                    sprite_index, sequence_index, tag_path_get(map, tag_data), tag_fourcc_to_extension(TAG_FOURCC_BITMAP));
+                    fprintf(stderr, "bitmap sprite %zu of sequence %zu in \"%s.%s\" is out of bounds\n",
+                        sprite_index, sequence_index, tag_path_get(map, tag_data), tag_fourcc_to_extension(TAG_FOURCC_BITMAP)
+                    );
                     return false;
                 }
 
                 struct bitmap_data *bitmap = bitmap_get_data(bitmap_group, sprite->bitmap_index, tag_data);
                 if(!bitmap) {
-                    fprintf(stderr,"bitmap data %u in \"%s.%s\" is out of bounds\n",
-                    sprite->bitmap_index, tag_path_get(map, tag_data), tag_fourcc_to_extension(TAG_FOURCC_BITMAP));
+                    fprintf(stderr, "bitmap data %u in \"%s.%s\" is out of bounds\n",
+                        sprite->bitmap_index, tag_path_get(map, tag_data), tag_fourcc_to_extension(TAG_FOURCC_BITMAP)
+                    );
                     return false;
                 }
 

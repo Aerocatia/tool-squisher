@@ -11,7 +11,9 @@
 bool unit_hud_interface_postprocess(TagID tag, struct tag_data_instance *tag_data) {
     struct unit_hud_interface *unit_hud = tag_get(tag, TAG_FOURCC_UNIT_HUD_INTERFACE, tag_data);
     if(!unit_hud) {
-        fprintf(stderr,"tag data for \"%s.%s\" is invalid\n", tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_UNIT_HUD_INTERFACE));
+        fprintf(stderr, "tag data for \"%s.%s\" is invalid\n",
+            tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_UNIT_HUD_INTERFACE)
+        );
         return false;
     }
 
@@ -24,7 +26,9 @@ bool unit_hud_interface_postprocess(TagID tag, struct tag_data_instance *tag_dat
     for(size_t i = 0; i < unit_hud->auxiliary_meters.count; i++) {
         struct uint_hud_auxiliary_meter_element *meter_element = unit_hud_get_auxiliary_meter_element(unit_hud, i, tag_data);
         if(!meter_element) {
-            fprintf(stderr,"auxiliary meter element %zu in \"%s.%s\" is out of bounds\n", i, tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_UNIT_HUD_INTERFACE));
+            fprintf(stderr, "auxiliary meter element %zu in \"%s.%s\" is out of bounds\n",
+                i, tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_UNIT_HUD_INTERFACE)
+            );
             return false;
         }
 

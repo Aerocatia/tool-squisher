@@ -80,7 +80,9 @@ static float_bounds sound_get_default_distance_values_for_class(uint16_t sound_c
 bool sound_postprocess(TagID tag, struct tag_data_instance *tag_data) {
     struct sound *sound = tag_get(tag, TAG_FOURCC_SOUND, tag_data);
     if(!sound) {
-        fprintf(stderr,"tag data for \"%s.%s\" is invalid\n", tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SOUND));
+        fprintf(stderr, "tag data for \"%s.%s\" is invalid\n",
+            tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SOUND)
+        );
         return false;
     }
 
@@ -94,7 +96,7 @@ bool sound_postprocess(TagID tag, struct tag_data_instance *tag_data) {
     }
 
     // Nothing more to do?
-    if(!tag_data->indexed_external_tags || tag_data->tags[tag.index].external) {
+    if(!tag_data->indexed_external_tags || tag_is_external(tag, tag_data)) {
         return true;
     }
 
@@ -105,14 +107,18 @@ bool sound_postprocess(TagID tag, struct tag_data_instance *tag_data) {
     for(size_t pr = 0; pr < sound->pitch_ranges.count; pr++) {
         struct sound_pitch_range *pitch_range = sound_get_pitch_range(sound, pr, tag_data);
         if(!pitch_range) {
-            fprintf(stderr,"sound pitch range %zu in \"%s.%s\" is out of bounds\n", pr, tag_path, tag_fourcc_to_extension(TAG_FOURCC_SOUND));
+            fprintf(stderr, "sound pitch range %zu in \"%s.%s\" is out of bounds\n",
+                pr, tag_path, tag_fourcc_to_extension(TAG_FOURCC_SOUND)
+            );
             return false;
         }
 
         for(size_t p = 0; p < pitch_range->permutations.count; p++) {
             struct sound_permutation *permutation = sound_get_permutation(pitch_range, p, tag_data);
             if(!permutation) {
-                fprintf(stderr,"sound permutation %zu of pitch range %zu in \"%s.%s\" is out of bounds\n", p, pr, tag_path, tag_fourcc_to_extension(TAG_FOURCC_SOUND));
+                fprintf(stderr, "sound permutation %zu of pitch range %zu in \"%s.%s\" is out of bounds\n",
+                    p, pr, tag_path, tag_fourcc_to_extension(TAG_FOURCC_SOUND)
+                );
                 return false;
             }
 
@@ -121,7 +127,7 @@ bool sound_postprocess(TagID tag, struct tag_data_instance *tag_data) {
             }
 
             if(!resources_sound_is_in_sounds_map(tag_path)) {
-                fprintf(stderr,"sound \"%s\" has external sound sample offsets but does not map to the stock sounds.map by tag path\nThe map should be rebuilt\n", tag_path);
+                fprintf(stderr, "sound \"%s\" has external sound sample offsets but does not map to the stock sounds.map by tag path\nThe map should be rebuilt\n", tag_path);
                 return false;
             }
 
@@ -140,7 +146,7 @@ bool sound_postprocess(TagID tag, struct tag_data_instance *tag_data) {
         sound->runtime_maximum_play_time = 0;
         sound->pitch_ranges.address = 0; // but not the count?
         tag_data->tags[tag.index].external = 1;
-        fprintf(stderr,"sound \"%s\" had external sound sample offsets and was changed to lookup tag data from sounds.map by tag path\n", tag_path);
+        fprintf(stderr, "sound \"%s\" had external sound sample offsets and was changed to lookup tag data from sounds.map by tag path\n", tag_path);
     }
 
     return true;
