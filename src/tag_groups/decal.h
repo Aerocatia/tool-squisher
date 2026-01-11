@@ -6,6 +6,8 @@
 #include "../tag/tag.h"
 #include "shader.h"
 
+#define NUMBER_OF_STOCK_DECAL_BITMAPS 85
+
 enum {
     DECAL_FLAGS_GEOMETRY_INHERITED_BY_NEXT_DECAL_IN_CHAIN_BIT,
     DECAL_FLAGS_COLOR_INTERPOLATE_IN_HSV_BIT,
@@ -67,5 +69,10 @@ struct decal {
 static_assert(sizeof(struct decal) == 268);
 
 #pragma pack(pop)
+
+struct decal_bitmap_extent {
+    const char *name;
+    const float extent;
+};
 
 bool decal_postprocess(TagID tag, struct tag_data_instance *tag_data);
