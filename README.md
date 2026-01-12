@@ -22,6 +22,12 @@ data reads. This condition only happens due to a tool.exe bug when user tags
 mismatch the tags in the resource maps. Consider re-building the map with
 matching tags if this happens.
 
+## Decal
+
+The `sprite scale bug fix` flag can be used to have tool-squisher calculate the
+correct `runtime maximum sprite extent` value. This will fix decal scaling when
+sprite bitmaps are used.
+
 ## Lens flare
 Fixes the Custom Edition HEK tool.exe setting a default rotation scaling to
 360 radians instead of 360 degrees.
