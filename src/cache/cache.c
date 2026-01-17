@@ -110,19 +110,7 @@ static bool cache_file_tag_data_is_corrupt(struct tag_data_instance *tag_data) {
     return false;
 }
 
-uint16_t cache_file_resolve_build(struct cache_file_header *header) {
-    assert(header);
-    for(uint16_t i = 0; i < NUMBER_OF_CACHE_FILE_TRACKED_BUILDS; i++) {
-        if(strcmp(header->build_number, cache_file_tracked_builds[i]) == 0) {
-            return i;
-        }
-    }
-
-    // Unknown
-    return CACHE_FILE_TRACKED_BUILD_UNTRACKED;
-}
-
-bool cache_file_fix_checksum(struct cache_file_instance *cache_file) {
+static bool cache_file_fix_checksum(struct cache_file_instance *cache_file) {
     assert(cache_file && cache_file->valid);
     struct scenario *scenario_tag = tag_get(cache_file->tag_data.header->scenario_tag, TAG_FOURCC_SCENARIO, &cache_file->tag_data);
     if(!scenario_tag) {
@@ -150,6 +138,18 @@ bool cache_file_fix_checksum(struct cache_file_instance *cache_file) {
     return true;
 }
 
+uint16_t cache_file_resolve_build(struct cache_file_header *header) {
+    assert(header);
+    for(uint16_t i = 0; i < NUMBER_OF_CACHE_FILE_TRACKED_BUILDS; i++) {
+        if(strcmp(header->build_number, cache_file_tracked_builds[i]) == 0) {
+            return i;
+        }
+    }
+
+    // Unknown
+    return CACHE_FILE_TRACKED_BUILD_UNTRACKED;
+}
+
 void cache_file_load(const char *path, struct cache_file_instance *cache_file) {
     assert(cache_file && !cache_file->data);
     file_read_into_buffer(path, &cache_file->data, &cache_file->size);
@@ -158,33 +158,31 @@ void cache_file_load(const char *path, struct cache_file_instance *cache_file) {
         return;
     }
 
-    if(cache_file->size < CACHE_FILE_MINIMUM_SIZE) {
+    // Should be within this size range
+    if(cache_file->size < CACHE_FILE_MINIMUM_SIZE || cache_file->size > CACHE_FILE_MAXIMUM_SIZE) {
         goto cleanup;
     }
 
+    // Check header
     if(!cache_file_verify_header(cache_file->header)) {
         goto cleanup;
     }
 
-    // Get tag data info
-    if(cache_file->header->tags_offset > INT32_MAX) {
-        fprintf(stderr, "%s: Tag data offset is too large\n", cache_file->header->name);
+    // Check tag data
+    if(cache_file->header->tags_size < sizeof(struct tag_data_header)) {
+        fprintf(stderr, "%s: Tag data size is too small to have valid tag data\n", cache_file->header->name);
         goto cleanup;
     }
-    if(cache_file->header->tags_size > INT32_MAX) {
-        fprintf(stderr, "%s: Tag data size is too large\n", cache_file->header->name);
-        goto cleanup;
-    }
-    if(cache_file->header->tags_offset > cache_file->size) {
-        fprintf(stderr, "%s: Tag data offset is out of bounds for the cache file\n", cache_file->header->name);
-        goto cleanup;
-    }
-    if(cache_file->header->tags_offset + cache_file->header->tags_size > cache_file->size) {
+
+    uint64_t end_of_tag_data = cache_file->header->tags_offset + cache_file->header->tags_size;
+    if(end_of_tag_data > cache_file->size) {
         fprintf(stderr, "%s: Tag data size is out of bounds for the cache file\n", cache_file->header->name);
         goto cleanup;
     }
-    if(cache_file->header->tags_size < sizeof(struct tag_data_header)) {
-        fprintf(stderr, "%s: Tag data size is too small to have valid tag data\n", cache_file->header->name);
+
+    // This should be at the end if the cache file was made by tool.exe
+    if(end_of_tag_data != cache_file->size) {
+        fprintf(stderr, "%s: Tag data is not at the end of the cache file\n", cache_file->header->name);
         goto cleanup;
     }
 
@@ -223,6 +221,32 @@ void cache_file_load(const char *path, struct cache_file_instance *cache_file) {
     cleanup:
     free(cache_file->data);
     memset(cache_file, 0, sizeof(struct cache_file_instance));
+}
+
+bool cache_file_update_header(struct cache_file_instance *cache_file, bool update_build_number) {
+    assert(cache_file && cache_file->valid);
+
+    // Make sure the size is correct
+    if(cache_file->size > CACHE_FILE_MAXIMUM_SIZE) {
+        fprintf(stderr, "%s: Cache file data is too large\n", cache_file->header->name);
+        return false;
+    }
+
+    cache_file->header->size = cache_file->size;
+
+    // Set build number to a specific value if we need to know we touched the cache file
+    if(update_build_number) {
+        strncpy(cache_file->header->build_number,
+            cache_file_tracked_builds[CACHE_FILE_TRACKED_BUILD_TOOL_SQUISHER], sizeof(cache_file->header->build_number)
+        );
+    }
+
+    if(!cache_file_fix_checksum(cache_file)) {
+        fprintf(stderr, "%s: Failed to calculate cache file checksum\n", cache_file->header->name);
+        return false;
+    }
+
+    return true;
 }
 
 void cache_file_unload(struct cache_file_instance *cache_file) {

@@ -7,6 +7,7 @@
 #define CACHE_FILE_HEADER_SIGNATURE 0x68656164 // head
 #define CACHE_FILE_FOOTER_SIGNATURE 0x666F6F74 // foot
 #define CACHE_FILE_MINIMUM_SIZE 4096
+#define CACHE_FILE_MAXIMUM_SIZE INT32_MAX
 
 enum {
     CACHE_FILE_VERSION_XBOX = 5,
@@ -79,6 +80,6 @@ struct cache_file_instance {
 };
 
 uint16_t cache_file_resolve_build(struct cache_file_header *header);
-bool cache_file_fix_checksum(struct cache_file_instance *cache_file);
 void cache_file_load(const char *path, struct cache_file_instance *cache_file);
+bool cache_file_update_header(struct cache_file_instance *cache_file, bool update_build_number);
 void cache_file_unload(struct cache_file_instance *cache_file);

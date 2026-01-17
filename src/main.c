@@ -79,25 +79,19 @@ static bool postprocess_map(const char *path) {
             abort();
     }
 
-    if(!success) {
-        fprintf(stderr, "%s: Could not process\n", path);
-        cache_file_unload(&cache_file);
-        return false;
+    if(success) {
+        success = cache_file_update_header(&cache_file, true);
     }
 
-    // Set build string to a specific value so we do not process this again.
-    strncpy(cache_file.header->build_number,
-        cache_file_tracked_builds[CACHE_FILE_TRACKED_BUILD_TOOL_SQUISHER], sizeof(cache_file.header->build_number)
-    );
-    if(!cache_file_fix_checksum(&cache_file)) {
-        fprintf(stderr, "%s: Failed to calculate cache file checksum\n", path);
-        cache_file_unload(&cache_file);
-        return false;
+    if(success) {
+        success = file_write_from_buffer(path, cache_file.data, cache_file.size);
     }
 
-    success = file_write_from_buffer(path, cache_file.data, cache_file.size);
     if(success) {
         printf("%s: Saved!\n", path);
+    }
+    else {
+        fprintf(stderr, "%s: Could not process\n", path);
     }
 
     cache_file_unload(&cache_file);
