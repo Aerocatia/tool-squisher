@@ -58,13 +58,12 @@ static bool postprocess_map(const char *path) {
         return false;
     }
 
-    bool success;
+    bool success = true;
     auto cache_build = cache_file_resolve_build(cache_file.header);
     switch(cache_build) {
         case CACHE_FILE_TRACKED_BUILD_TOOL_SQUISHER:
             fprintf(stderr, "%s: Has already been squished\n", path);
-            cache_file_unload(&cache_file);
-            return true;
+            goto exit;
         case CACHE_FILE_TRACKED_BUILD_0563:
         case CACHE_FILE_TRACKED_BUILD_0564:
         case CACHE_FILE_TRACKED_BUILD_0609:
@@ -73,27 +72,29 @@ static bool postprocess_map(const char *path) {
             break;
         case CACHE_FILE_TRACKED_BUILD_UNTRACKED:
             fprintf(stderr, "%s: Unsupported build \"%s\"\n", path, cache_file.header->build_number);
-            cache_file_unload(&cache_file);
-            return false;
+            success = false;
+            goto exit;
         default:
             abort();
     }
 
-    if(success) {
-        success = cache_file_update_header(&cache_file, true);
+    if(!success) {
+        fprintf(stderr, "%s: Could not process\n", path);
+        goto exit;
     }
 
-    if(success) {
-        success = file_write_from_buffer(path, cache_file.data, cache_file.size);
+    success = cache_file_update_header(&cache_file, true);
+    if(!success) {
+        fprintf(stderr, "%s: Could not update cache header\n", path);
+        goto exit;
     }
 
+    success = file_write_from_buffer(path, cache_file.data, cache_file.size);
     if(success) {
         printf("%s: Saved!\n", path);
     }
-    else {
-        fprintf(stderr, "%s: Could not process\n", path);
-    }
 
+    exit:
     cache_file_unload(&cache_file);
     return success;
 }
