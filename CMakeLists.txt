@@ -40,3 +40,8 @@ target_compile_options(tool-squisher PRIVATE -Wall -Wextra -Werror)
 if(WIN32)
     target_sources(tool-squisher PRIVATE src/windows.rc)
 endif()
+
+option(TOOL_SQUISHER_TRUST_ME_BRO "Relax cache-file checks for fixing questionable maps" OFF)
+if(${TOOL_SQUISHER_TRUST_ME_BRO})
+    target_compile_definitions(tool-squisher PUBLIC TOOL_SQUISHER_TRUST_ME_BRO)
+endif()

@@ -83,10 +83,12 @@ static bool cache_file_tag_data_is_corrupt(struct tag_data_instance *tag_data) {
             continue;
         }
 
+#ifndef TOOL_SQUISHER_TRUST_ME_BRO
         // Tag group fourcc must be known
         if(!tag_fourcc_is_valid_tag(tag_group)) {
             return true;
         }
+#endif
 
         // Check for duplicate tag paths
         for(size_t t2 = 0; t2 < t; t2++) {
@@ -180,11 +182,13 @@ void cache_file_load(const char *path, struct cache_file_instance *cache_file) {
         goto cleanup;
     }
 
-    // This should be at the end if the cache file was made by tool.exe
+#ifndef TOOL_SQUISHER_TRUST_ME_BRO
+    // This should be at the end if the cache file was made by regular tool.exe
     if(end_of_tag_data != cache_file->size) {
         fprintf(stderr, "%s: Tag data is not at the end of the cache file\n", cache_file->header->name);
         goto cleanup;
     }
+#endif
 
     cache_file->tag_data.data = cache_file->data + cache_file->header->tags_offset;
     if(cache_file->tag_data.header->tag_count > INT16_MAX) {
