@@ -13,8 +13,7 @@ bool grenade_hud_interface_postprocess(TagID tag, struct tag_data_instance *tag_
     struct grenade_hud_interface *grenade_hud = tag_get(tag, TAG_FOURCC_GRENADE_HUD_INTERFACE, tag_data);
     if(!grenade_hud) {
         fprintf(stderr, "tag data for \"%s.%s\" is invalid\n",
-            tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_GRENADE_HUD_INTERFACE)
-        );
+            tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_GRENADE_HUD_INTERFACE));
         return false;
     }
 

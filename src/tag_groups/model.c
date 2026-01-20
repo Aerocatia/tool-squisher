@@ -11,8 +11,7 @@ bool gbxmodel_postprocess(TagID tag, struct tag_data_instance *tag_data) {
     struct model *gbxmodel = tag_get(tag, TAG_FOURCC_GBXMODEL, tag_data);
     if(!gbxmodel) {
         fprintf(stderr, "tag data for \"%s.%s\" is invalid\n",
-            tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_GBXMODEL)
-        );
+            tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_GBXMODEL));
         return false;
     }
 
@@ -20,8 +19,7 @@ bool gbxmodel_postprocess(TagID tag, struct tag_data_instance *tag_data) {
         struct model_geometry *geometry = model_get_geometry(gbxmodel, g, tag_data);
         if(!geometry) {
             fprintf(stderr, "geometry %zu in \"%s.%s\" is out of bounds\n",
-                g, tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_GBXMODEL)
-            );
+                g, tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_GBXMODEL));
             return false;
         }
 
@@ -29,8 +27,7 @@ bool gbxmodel_postprocess(TagID tag, struct tag_data_instance *tag_data) {
             struct gbxmodel_geometry_part *part = gbxmodel_get_geometry_part(geometry, gp, tag_data);
             if(!part) {
                 fprintf(stderr, "geometry part %zu of geometry %zu in \"%s.%s\" is out of bounds\n",
-                    gp, g, tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_GBXMODEL)
-                );
+                    gp, g, tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_GBXMODEL));
                 return false;
             }
 

@@ -11,8 +11,7 @@ bool shader_model_postprocess(TagID tag, struct tag_data_instance *tag_data) {
     struct shader_model *shader = tag_get(tag, TAG_FOURCC_SHADER_MODEL, tag_data);
     if(!shader) {
         fprintf(stderr, "tag data for \"%s.%s\" is invalid\n",
-            tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SHADER_MODEL)
-        );
+            tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SHADER_MODEL));
         return false;
     }
 

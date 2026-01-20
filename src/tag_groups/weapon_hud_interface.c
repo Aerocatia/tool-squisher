@@ -15,8 +15,7 @@ bool weapon_hud_interface_postprocess(TagID tag, struct tag_data_instance *tag_d
     struct weapon_hud_interface *weapon_hud = tag_get(tag, TAG_FOURCC_WEAPON_HUD_INTERFACE, tag_data);
     if(!weapon_hud) {
         fprintf(stderr, "tag data for \"%s.%s\" is invalid\n",
-            tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_WEAPON_HUD_INTERFACE)
-        );
+            tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_WEAPON_HUD_INTERFACE));
         return false;
     }
 
@@ -28,8 +27,7 @@ bool weapon_hud_interface_postprocess(TagID tag, struct tag_data_instance *tag_d
         struct weapon_hud_static_element *static_element = weapon_hud_get_static_element(weapon_hud, statics, tag_data);
         if(!static_element) {
             fprintf(stderr, "static element %zu in \"%s.%s\" is out of bounds\n",
-                statics, tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_WEAPON_HUD_INTERFACE)
-            );
+                statics, tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_WEAPON_HUD_INTERFACE));
             return false;
         }
 
@@ -41,8 +39,7 @@ bool weapon_hud_interface_postprocess(TagID tag, struct tag_data_instance *tag_d
         struct weapon_hud_meter_element *meter_element = weapon_hud_get_meter_element(weapon_hud, meters, tag_data);
         if(!meter_element) {
             fprintf(stderr, "meter element %zu in \"%s.%s\" is out of bounds\n",
-                meters, tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_WEAPON_HUD_INTERFACE)
-            );
+                meters, tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_WEAPON_HUD_INTERFACE));
             return false;
         }
 
@@ -55,8 +52,7 @@ bool weapon_hud_interface_postprocess(TagID tag, struct tag_data_instance *tag_d
         struct weapon_hud_number_element *number_element = weapon_hud_get_number_element(weapon_hud, numbers, tag_data);
         if(!number_element) {
             fprintf(stderr, "number element %zu in \"%s.%s\" is out of bounds\n",
-                numbers, tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_WEAPON_HUD_INTERFACE)
-            );
+                numbers, tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_WEAPON_HUD_INTERFACE));
             return false;
         }
 
@@ -68,8 +64,7 @@ bool weapon_hud_interface_postprocess(TagID tag, struct tag_data_instance *tag_d
         struct weapon_hud_overlays_element *overlays_element = weapon_hud_get_overlays_element(weapon_hud, overlays, tag_data);
         if(!overlays_element) {
             fprintf(stderr, "overlays element %zu in \"%s.%s\" is out of bounds\n",
-                overlays, tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_WEAPON_HUD_INTERFACE)
-            );
+                overlays, tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_WEAPON_HUD_INTERFACE));
             return false;
         }
 
@@ -86,16 +81,14 @@ bool weapon_hud_interface_postprocess(TagID tag, struct tag_data_instance *tag_d
         struct weapon_hud_crosshairs_element *crosshairs_element = weapon_hud_get_crosshairs_element(weapon_hud, crosshairs, tag_data);
         if(!crosshairs_element) {
             fprintf(stderr, "crosshairs element %zu in \"%s.%s\" is out of bounds\n",
-                crosshairs, tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_WEAPON_HUD_INTERFACE)
-            );
+                crosshairs, tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_WEAPON_HUD_INTERFACE));
             return false;
         }
         for(size_t overlay = 0; overlay < crosshairs_element->crosshairs.items.count; overlay++) {
             struct weapon_hud_crosshair_item *overlay_element = weapon_hud_get_crosshairs_item(crosshairs_element, overlay, tag_data);
             if(!overlay_element) {
                 fprintf(stderr, "crosshair overlay %zu of crosshairs element %zu in \"%s.%s\" is out of bounds\n",
-                    overlay, crosshairs, tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_WEAPON_HUD_INTERFACE)
-                );
+                    overlay, crosshairs, tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_WEAPON_HUD_INTERFACE));
                 return false;
             }
 

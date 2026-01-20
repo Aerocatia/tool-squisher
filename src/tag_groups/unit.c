@@ -20,8 +20,7 @@ bool uint_postprocess(TagID tag, struct tag_data_instance *tag_data) {
     struct unit *unit = tag_get(tag, TAG_FOURCC_UNIT, tag_data);
     if(!unit) {
         fprintf(stderr, "tag data for \"%s.%s\" is invalid\n",
-            tag_path_get(tag, tag_data), tag_extension_get(tag, tag_data)
-        );
+            tag_path_get(tag, tag_data), tag_extension_get(tag, tag_data));
         return false;
     }
 

@@ -241,8 +241,7 @@ bool cache_file_update_header(struct cache_file_instance *cache_file, bool updat
     // Set build number to a specific value if we need to know we touched the cache file
     if(update_build_number) {
         strncpy(cache_file->header->build_number,
-            cache_file_tracked_builds[CACHE_FILE_TRACKED_BUILD_TOOL_SQUISHER], sizeof(cache_file->header->build_number)
-        );
+            cache_file_tracked_builds[CACHE_FILE_TRACKED_BUILD_TOOL_SQUISHER], sizeof(cache_file->header->build_number));
     }
 
     if(!cache_file_fix_checksum(cache_file)) {

@@ -13,8 +13,7 @@ bool hud_globals_postprocess(TagID tag, struct tag_data_instance *tag_data) {
     struct hud_globals *hud_globals = tag_get(tag, TAG_FOURCC_HUD_GLOBALS, tag_data);
     if(!hud_globals) {
         fprintf(stderr, "tag data for \"%s.%s\" is invalid\n",
-            tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_HUD_GLOBALS)
-        );
+            tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_HUD_GLOBALS));
         return false;
     }
 
@@ -24,8 +23,7 @@ bool hud_globals_postprocess(TagID tag, struct tag_data_instance *tag_data) {
     if(hud_globals->bitmap_remaps.count != 0) {
         memset(&hud_globals->bitmap_remaps, 0, sizeof(struct tag_reflexive));
         fprintf(stderr, "HUD globals tag \"%s.%s\" had MCC CEA bitmap remaps\nthis was likely corrupted by the older tool.exe so the reflexive was zeroed out\n",
-            tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_HUD_GLOBALS)
-        );
+            tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_HUD_GLOBALS));
     }
 
     // Absolute placement

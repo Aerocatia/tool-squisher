@@ -62,8 +62,7 @@ bool scenario_structure_bsp_postprocess_all_in_cache(struct cache_file_instance 
     struct scenario *scenario = tag_get(scenario_id, TAG_FOURCC_SCENARIO, tag_data);
     if(!scenario) {
         fprintf(stderr, "tag data for \"%s.%s\" is invalid\n",
-            tag_path_get(scenario_id, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SCENARIO)
-        );
+            tag_path_get(scenario_id, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SCENARIO));
         return false;
     }
 
@@ -71,39 +70,34 @@ bool scenario_structure_bsp_postprocess_all_in_cache(struct cache_file_instance 
         struct scenario_structure_bsp_reference *bsp_reference = scenario_get_bsp_reference(scenario, i, tag_data);
         if(!bsp_reference) {
             fprintf(stderr, "BSP reference %zu in \"%s.%s\" is out of bounds\n",
-                i, tag_path_get(scenario_id, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SCENARIO)
-            );
+                i, tag_path_get(scenario_id, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SCENARIO));
             return false;
         }
 
         auto bsp_id = bsp_reference->structure_bsp.index;
         if(bsp_reference->size < sizeof(struct cache_file_structure_bsp_header)) {
             fprintf(stderr, "cache data for \"%s.%s\" is too small to be a BSP\n",
-                tag_path_get(bsp_id, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SCENARIO_STRUCTURE_BSP)
-            );
+                tag_path_get(bsp_id, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SCENARIO_STRUCTURE_BSP));
             return false;
         }
 
         if(bsp_reference->offset + bsp_reference->size > cache_file->size) {
             fprintf(stderr, "cache data for \"%s.%s\" is out of bounds\n",
-                tag_path_get(bsp_id, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SCENARIO_STRUCTURE_BSP)
-            );
+                tag_path_get(bsp_id, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SCENARIO_STRUCTURE_BSP));
             return false;
         }
 
         struct cache_file_structure_bsp_header *bsp_header = (struct cache_file_structure_bsp_header *)(cache_file->data + bsp_reference->offset);
         if(bsp_header->signature != TAG_FOURCC_SCENARIO_STRUCTURE_BSP) {
             fprintf(stderr, "BSP header for \"%s.%s\" is invalid\n",
-                tag_path_get(bsp_id, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SCENARIO_STRUCTURE_BSP)
-            );
+                tag_path_get(bsp_id, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SCENARIO_STRUCTURE_BSP));
             return false;
         }
 
         struct structure_bsp *bsp = structure_bsp_resolve_cached_pointer(bsp_header->structure_bsp, sizeof(struct structure_bsp), bsp_reference, cache_file);
         if(!bsp) {
             fprintf(stderr, "tag data for \"%s.%s\" is out of bounds\n",
-                tag_path_get(bsp_id, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SCENARIO_STRUCTURE_BSP)
-            );
+                tag_path_get(bsp_id, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SCENARIO_STRUCTURE_BSP));
             return false;
         }
 
@@ -111,8 +105,7 @@ bool scenario_structure_bsp_postprocess_all_in_cache(struct cache_file_instance 
             struct structure_lightmap *lightmap = structure_bsp_get_cached_lightmap(bsp, l, bsp_reference, cache_file);
             if(!lightmap) {
                 fprintf(stderr, "lightmap %zu in \"%s.%s\" is out of bounds\n",
-                    l, tag_path_get(bsp_id, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SCENARIO_STRUCTURE_BSP)
-                );
+                    l, tag_path_get(bsp_id, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SCENARIO_STRUCTURE_BSP));
                 return false;
             }
 
@@ -120,8 +113,7 @@ bool scenario_structure_bsp_postprocess_all_in_cache(struct cache_file_instance 
                 struct structure_material *material = structure_bsp_get_cached_material(lightmap, m, bsp_reference, cache_file);
                 if(!material) {
                     fprintf(stderr, "material %zu of lightmap %zu in \"%s.%s\" is out of bounds\n",
-                        m, l, tag_path_get(bsp_id, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SCENARIO_STRUCTURE_BSP)
-                    );
+                        m, l, tag_path_get(bsp_id, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SCENARIO_STRUCTURE_BSP));
                     return false;
                 }
 
@@ -148,8 +140,7 @@ bool scenario_structure_bsp_postprocess_all_in_cache(struct cache_file_instance 
             struct structure_node *node = structure_bsp_get_cached_node(bsp, n, bsp_reference, cache_file);
             if(!node) {
                 fprintf(stderr, "node %zu in \"%s.%s\" is out of bounds\n",
-                    n, tag_path_get(bsp_id, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SCENARIO_STRUCTURE_BSP)
-                );
+                    n, tag_path_get(bsp_id, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SCENARIO_STRUCTURE_BSP));
                 return false;
             }
 
@@ -164,8 +155,7 @@ bool scenario_structure_bsp_postprocess_all_in_cache(struct cache_file_instance 
                 node->bounds.z1 = temp.z0;
                 if(node->bounds.x0 > node->bounds.x1 || node->bounds.y0 > node->bounds.y1 || node->bounds.y0 > node->bounds.y1) {
                     fprintf(stderr, "node %zu in \"%s.%s\" has invalid bounds and can not be fixed\n",
-                        n, tag_path_get(bsp_id, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SCENARIO_STRUCTURE_BSP)
-                    );
+                        n, tag_path_get(bsp_id, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SCENARIO_STRUCTURE_BSP));
                     return false;
                 }
 
@@ -175,8 +165,7 @@ bool scenario_structure_bsp_postprocess_all_in_cache(struct cache_file_instance 
 
         if(inverted_nodes) {
             fprintf(stderr, "fixed inverted node bounds in \"%s.%s\"\nthis was likely caused by HEK+, if you are sure this BSP was not touched by HEK+ then this might be a bug!\n",
-                tag_path_get(bsp_id, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SCENARIO_STRUCTURE_BSP)
-            );
+                tag_path_get(bsp_id, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SCENARIO_STRUCTURE_BSP));
         }
     }
 
