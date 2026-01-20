@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>
 
 #include "tag.h"
 
@@ -44,14 +45,34 @@ void *tag_resolve_pointer(Pointer32 data_pointer, size_t needed_size, struct tag
     return tag_data->data + offset;
 }
 
-void *tag_reflexive_get_element(struct tag_reflexive *reflexive, uint32_t index, size_t size, struct tag_data_instance *tag_data) {
+void *tag_reflexive_get_element(struct tag_reflexive *reflexive, uint32_t index, size_t element_size, struct tag_data_instance *tag_data) {
     assert(reflexive && tag_data && tag_data->valid);
     if(index >= reflexive->count) {
         return nullptr;
     }
 
     // Totally not pointing to bullshit. Trust me...im a dolphin
-    return tag_resolve_pointer(reflexive->address + index * size, size, tag_data);
+    return tag_resolve_pointer(reflexive->address + index * element_size, element_size, tag_data);
+}
+
+bool tag_reflexive_erase_element_data(struct tag_reflexive *reflexive, size_t element_size, struct tag_data_instance *tag_data) {
+    assert(reflexive && tag_data && tag_data->valid);
+
+    // Halo checks/nulls the pointer, not the count
+    if(reflexive->address == 0) {
+        return true;
+    }
+
+    size_t data_size = element_size * reflexive->count;
+    uint8_t *data = tag_resolve_pointer(reflexive->address, data_size, tag_data);
+    if(!data) {
+        return false;
+    }
+
+    memset(data, 0, data_size);
+    //reflexive->count = 0;
+    reflexive->address = 0;
+    return true;
 }
 
 void *tag_get(TagID tag_id, uint32_t tag_group, struct tag_data_instance *tag_data) {

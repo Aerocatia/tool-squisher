@@ -81,8 +81,7 @@ bool sound_postprocess(TagID tag, struct tag_data_instance *tag_data) {
     struct sound *sound = tag_get(tag, TAG_FOURCC_SOUND, tag_data);
     if(!sound) {
         fprintf(stderr, "tag data for \"%s.%s\" is invalid\n",
-            tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SOUND)
-        );
+            tag_path_get(tag, tag_data), tag_fourcc_to_extension(TAG_FOURCC_SOUND));
         return false;
     }
 
@@ -108,8 +107,7 @@ bool sound_postprocess(TagID tag, struct tag_data_instance *tag_data) {
         struct sound_pitch_range *pitch_range = sound_get_pitch_range(sound, pr, tag_data);
         if(!pitch_range) {
             fprintf(stderr, "sound pitch range %zu in \"%s.%s\" is out of bounds\n",
-                pr, tag_path, tag_fourcc_to_extension(TAG_FOURCC_SOUND)
-            );
+                pr, tag_path, tag_fourcc_to_extension(TAG_FOURCC_SOUND));
             return false;
         }
 
@@ -117,8 +115,7 @@ bool sound_postprocess(TagID tag, struct tag_data_instance *tag_data) {
             struct sound_permutation *permutation = sound_get_permutation(pitch_range, p, tag_data);
             if(!permutation) {
                 fprintf(stderr, "sound permutation %zu of pitch range %zu in \"%s.%s\" is out of bounds\n",
-                    p, pr, tag_path, tag_fourcc_to_extension(TAG_FOURCC_SOUND)
-                );
+                    p, pr, tag_path, tag_fourcc_to_extension(TAG_FOURCC_SOUND));
                 return false;
             }
 
@@ -139,12 +136,33 @@ bool sound_postprocess(TagID tag, struct tag_data_instance *tag_data) {
 
     // Please no ear destruction
     if(make_external) {
-        // Make the base struct look as if tool.exe had made it external
         sound->sample_rate = SOUND_SAMPLE_RATE_22K;
         sound->encoding = SOUND_ENCODING_MONO;
         sound->compression = SOUND_COMPRESSION_TYPE_NONE;
         sound->runtime_maximum_play_time = 0;
-        sound->pitch_ranges.address = 0; // but not the count?
+
+        // Zero stale reflexive data
+        for(size_t pr = 0; pr < sound->pitch_ranges.count; pr++) {
+            struct sound_pitch_range *pitch_range = sound_get_pitch_range(sound, pr, tag_data);
+            if(!pitch_range) {
+                fprintf(stderr, "sound pitch range %zu in \"%s.%s\" is out of bounds\n",
+                    pr, tag_path, tag_fourcc_to_extension(TAG_FOURCC_SOUND));
+                return false;
+            }
+
+            if(!tag_reflexive_erase_element_data(&pitch_range->permutations, sizeof(struct sound_permutation), tag_data)) {
+                fprintf(stderr, "permutation data for pitch range %zu in \"%s.%s\" is out of bounds\n",
+                    pr, tag_path, tag_fourcc_to_extension(TAG_FOURCC_SOUND));
+                return false;
+            }
+        }
+
+        if(!tag_reflexive_erase_element_data(&sound->pitch_ranges, sizeof(struct sound_pitch_range), tag_data)) {
+            fprintf(stderr, "pitch range data in \"%s.%s\" is out of bounds\n",
+                tag_path, tag_fourcc_to_extension(TAG_FOURCC_SOUND));
+            return false;
+        }
+
         tag_data->tags[tag.index].external = 1;
         fprintf(stderr, "sound \"%s\" had external sound sample offsets and was changed to lookup tag data from sounds.map by tag path\n", tag_path);
     }

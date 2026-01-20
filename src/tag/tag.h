@@ -75,7 +75,8 @@ struct tag_data_instance {
 bool tag_id_is_valid_tag(TagID tag, struct tag_data_instance *tag_data);
 bool tag_is_external(TagID tag, struct tag_data_instance *tag_data);
 void *tag_resolve_pointer(Pointer32 data_pointer, size_t needed_size, struct tag_data_instance *tag_data);
-void *tag_reflexive_get_element(struct tag_reflexive *reflexive, uint32_t index, size_t size, struct tag_data_instance *tag_data);
+void *tag_reflexive_get_element(struct tag_reflexive *reflexive, uint32_t index, size_t element_size, struct tag_data_instance *tag_data);
+bool tag_reflexive_erase_element_data(struct tag_reflexive *reflexive, size_t element_size, struct tag_data_instance *tag_data);
 void *tag_get(TagID tag_id, uint32_t tag_group, struct tag_data_instance *tag_data);
 const char *tag_path_get_maybe(TagID tag, struct tag_data_instance *tag_data);
 const char *tag_path_get(TagID tag, struct tag_data_instance *tag_data);
