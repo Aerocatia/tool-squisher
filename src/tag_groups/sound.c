@@ -95,14 +95,12 @@ bool sound_postprocess(TagID tag, struct tag_data_instance *tag_data) {
     }
 
     // Nothing more to do?
-    if(!tag_data->indexed_external_tags || tag_is_external(tag, tag_data)) {
+    if(tag_is_external(tag, tag_data)) {
         return true;
     }
 
-    // Fix maps using direct sounds.map data offsets if they should be using external tags
-    // This happens due to an oversight in tool.exe when checking if tags are the same as the ones in the resource maps or not
     const char *tag_path = tag_path_get(tag, tag_data);
-    bool make_external = false;
+    bool external = false;
     for(size_t pr = 0; pr < sound->pitch_ranges.count; pr++) {
         struct sound_pitch_range *pitch_range = sound_get_pitch_range(sound, pr, tag_data);
         if(!pitch_range) {
@@ -119,23 +117,24 @@ bool sound_postprocess(TagID tag, struct tag_data_instance *tag_data) {
                 return false;
             }
 
-            if(!permutation->samples.external) {
-                continue;
-            }
+            // Are sound samples in sounds.map?
+            bool external_samples = TEST_FLAG(permutation->samples.flags, TAG_DATA_FLAGS_EXTERNAL_BIT);
+            external = external || external_samples;
 
-            if(!resources_sound_is_in_sounds_map(tag_path)) {
-                fprintf(stderr, "sound \"%s\" has external sound sample offsets but does not map to the stock sounds.map by tag path\nThe map should be rebuilt\n", tag_path);
-                return false;
-            }
-
-            make_external = true;
-            goto done;
+            // Clear possible bogus flags (leftover from HEK+/MEK extracted tags)
+            permutation->samples.flags = 0;
+            SET_FLAG(permutation->samples.flags, TAG_DATA_FLAGS_EXTERNAL_BIT, external_samples);
         }
     }
-    done:
 
-    // Please no ear destruction
-    if(make_external) {
+    // Fix maps using direct sounds.map data offsets if they should be using external tags
+    // This happens due to an oversight in tool.exe when checking if tags are the same as the ones in the resource maps or not
+    if(external && tag_data->indexed_external_tags) {
+        if(!resources_sound_is_in_sounds_map(tag_path)) {
+            fprintf(stderr, "sound \"%s\" has external sound sample offsets but does not map to the stock sounds.map by tag path\nThe map should be rebuilt\n", tag_path);
+            return false;
+        }
+
         sound->sample_rate = SOUND_SAMPLE_RATE_22K;
         sound->encoding = SOUND_ENCODING_MONO;
         sound->compression = SOUND_COMPRESSION_TYPE_NONE;
@@ -143,13 +142,8 @@ bool sound_postprocess(TagID tag, struct tag_data_instance *tag_data) {
 
         // Zero stale reflexive data
         for(size_t pr = 0; pr < sound->pitch_ranges.count; pr++) {
+            // We got this before
             struct sound_pitch_range *pitch_range = sound_get_pitch_range(sound, pr, tag_data);
-            if(!pitch_range) {
-                fprintf(stderr, "sound pitch range %zu in \"%s.%s\" is out of bounds\n",
-                    pr, tag_path, tag_fourcc_to_extension(TAG_FOURCC_SOUND));
-                return false;
-            }
-
             if(!tag_reflexive_erase_element_data(&pitch_range->permutations, sizeof(struct sound_permutation), tag_data)) {
                 fprintf(stderr, "permutation data for pitch range %zu in \"%s.%s\" is out of bounds\n",
                     pr, tag_path, tag_fourcc_to_extension(TAG_FOURCC_SOUND));

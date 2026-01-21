@@ -6,6 +6,11 @@
 #define TAG_DATA_LOAD_ADDRESS 0x40440000
 #define MAX_TAG_PATH_LENGTH 260
 
+enum {
+    TAG_DATA_FLAGS_EXTERNAL_BIT, // if the data is in a resource map (only used by sounds)
+    NUMBER_OF_TAG_DATA_FLAGS
+};
+
 #pragma pack(push, 1)
 
 struct tag_data_header {
@@ -43,7 +48,7 @@ static_assert(sizeof(struct tag_reflexive) == 12);
 
 struct tag_data {
 	uint32_t size;
-	uint32_t external;// Set to 1 if the data is in a resource map (only used by sounds)
+    uint32_t flags;
 	uint32_t file_offset; // Not in loose tags
 	Pointer32 address; // 32-bit pointer to data
 	Pointer32 definition;// 32-bit pointer to data definition (in-engine only)
@@ -54,7 +59,7 @@ struct tag_reference {
 	uint32_t tag_group;
 	Pointer32 name; // 32-bit pointer to name
 	uint32_t name_length;
-	TagID index; //Tag index (two-part tag id)
+	TagID index; // Tag index (two-part tag id)
 };
 static_assert(sizeof(struct tag_reference) == 16);
 
