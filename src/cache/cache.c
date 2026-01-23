@@ -113,7 +113,7 @@ static bool cache_file_tag_data_is_corrupt(struct tag_data_instance *tag_data) {
     return false;
 }
 
-bool cache_file_checksum(uint32_t *crc_reference, struct cache_file_instance *cache_file) {
+static bool cache_file_checksum(uint32_t *crc_reference, struct cache_file_instance *cache_file) {
     assert(crc_reference && cache_file && cache_file->valid);
     struct scenario *scenario_tag = tag_get(cache_file->tag_data.header->scenario_tag, TAG_FOURCC_SCENARIO, &cache_file->tag_data);
     if(!scenario_tag) {

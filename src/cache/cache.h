@@ -81,7 +81,6 @@ struct cache_file_instance {
 };
 
 uint16_t cache_file_resolve_build(struct cache_file_header *header);
-bool cache_file_checksum(uint32_t *crc_reference, struct cache_file_instance *cache_file);
 void cache_file_force_checksum(uint32_t new_crc, struct cache_file_instance *cache_file);
 void cache_file_load(const char *path, struct cache_file_instance *cache_file);
 bool cache_file_update_header(struct cache_file_instance *cache_file, bool update_build_number);
