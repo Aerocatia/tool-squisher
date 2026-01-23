@@ -1,0 +1,148 @@
+/*
+ * CRC-32 forcer (C)
+ *
+ * Copyright (c) 2024 Project Nayuki
+ * https://www.nayuki.io/page/forcing-a-files-crc-to-any-value
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program (see COPYING.txt).
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include <inttypes.h>
+#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <assert.h>
+
+#include "crc_forcer.h"
+
+/* Forward declarations */
+
+static uint32_t reverse_bits(uint32_t x);
+static uint64_t multiply_mod(uint64_t x, uint64_t y);
+static uint64_t pow_mod(uint64_t x, uint64_t y);
+static void divide_and_remainder(uint64_t x, uint64_t y, uint64_t q[static 1], uint64_t r[static 1]);
+static uint64_t reciprocal_mod(uint64_t x);
+static int get_degree(uint64_t x);
+
+// Generator polynomial. Do not modify, because there are many dependencies
+static const uint64_t POLYNOMIAL = UINT64_C(0x104C11DB7);
+
+/*---- Utilities ----*/
+
+static uint32_t reverse_bits(uint32_t x) {
+    uint32_t result = 0;
+    for (int i = 0; i < 32; i++, x >>= 1)
+        result = (result << 1) | (x & 1U);
+    return result;
+}
+
+/*---- Polynomial arithmetic ----*/
+
+// Returns polynomial x multiplied by polynomial y modulo the generator polynomial.
+static uint64_t multiply_mod(uint64_t x, uint64_t y) {
+    // Russian peasant multiplication algorithm
+    uint64_t z = 0;
+    while (y != 0) {
+        z ^= x * (y & 1);
+        y >>= 1;
+        x <<= 1;
+        if (((x >> 32) & 1) != 0)
+            x ^= POLYNOMIAL;
+    }
+    return z;
+}
+
+// Returns polynomial x to the power of natural number y modulo the generator polynomial.
+static uint64_t pow_mod(uint64_t x, uint64_t y) {
+    // Exponentiation by squaring
+    uint64_t z = 1;
+    while (y != 0) {
+        if ((y & 1) != 0)
+            z = multiply_mod(z, x);
+        x = multiply_mod(x, x);
+        y >>= 1;
+    }
+    return z;
+}
+
+// Computes polynomial x divided by polynomial y, returning the quotient and remainder.
+static void divide_and_remainder(uint64_t x, uint64_t y, uint64_t q[static 1], uint64_t r[static 1]) {
+    if (y == 0) {
+        fprintf(stderr, "Division by zero\n");
+        exit(EXIT_FAILURE);
+    }
+    if (x == 0) {
+        *q = 0;
+        *r = 0;
+        return;
+    }
+
+    int ydeg = get_degree(y);
+    uint64_t z = 0;
+    for (int i = get_degree(x) - ydeg; i >= 0; i--) {
+        if (((x >> (i + ydeg)) & 1) != 0) {
+            x ^= y << i;
+            z |= (uint64_t)1 << i;
+        }
+    }
+    *q = z;
+    *r = x;
+}
+
+// Returns the reciprocal of polynomial x with respect to the generator polynomial.
+static uint64_t reciprocal_mod(uint64_t x) {
+    // Based on a simplification of the extended Euclidean algorithm
+    uint64_t y = x;
+    x = POLYNOMIAL;
+    uint64_t a = 0;
+    uint64_t b = 1;
+    while (y != 0) {
+        uint64_t q, r;
+        divide_and_remainder(x, y, &q, &r);
+        uint64_t c = a ^ multiply_mod(q, b);
+        x = y;
+        y = r;
+        a = b;
+        b = c;
+    }
+    if (x == 1)
+        return a;
+    else {
+        fprintf(stderr, "Reciprocal does not exist\n");
+        exit(EXIT_FAILURE);
+    }
+}
+
+static int get_degree(uint64_t x) {
+    int result = -1;
+    for (; x != 0; x >>= 1)
+        result++;
+    return result;
+}
+
+// Force a checksum to any value by changing 4 bytes
+void crc_force_buffer_checksum(uint32_t *crc_reference, uint32_t new_crc, uint8_t *buffer, size_t size, size_t offset) {
+    assert(crc_reference && buffer);
+    assert(size >= sizeof(uint32_t) && size - sizeof(uint32_t) >= offset);
+    uint32_t delta = reverse_bits(*crc_reference) ^ reverse_bits(new_crc);
+    delta = (uint32_t)multiply_mod(reciprocal_mod(pow_mod(2, (size - offset) * 8)), delta);
+    uint32_t mod_bytes;
+    memcpy(&mod_bytes, buffer + offset, sizeof(uint32_t));
+    mod_bytes ^= reverse_bits(delta);
+    memcpy(buffer + offset, &mod_bytes, sizeof(uint32_t));
+
+    *crc_reference = new_crc;
+}

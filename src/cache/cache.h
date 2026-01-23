@@ -77,9 +77,13 @@ struct cache_file_instance {
     size_t size;
     struct tag_data_instance tag_data;
     bool valid;
+    bool dirty;
 };
 
 uint16_t cache_file_resolve_build(struct cache_file_header *header);
+bool cache_file_checksum(uint32_t *crc_reference, struct cache_file_instance *cache_file);
+void cache_file_force_checksum(uint32_t new_crc, struct cache_file_instance *cache_file);
 void cache_file_load(const char *path, struct cache_file_instance *cache_file);
 bool cache_file_update_header(struct cache_file_instance *cache_file, bool update_build_number);
+bool cache_file_save(const char *path, struct cache_file_instance *cache_file);
 void cache_file_unload(struct cache_file_instance *cache_file);

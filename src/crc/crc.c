@@ -92,18 +92,18 @@ static uint32_t crc32_tab[] = {
     0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d
 };
 
-void crc_new(uint32_t *crc) {
-    assert(crc);
-    *crc = CRC_NEW;
+void crc_new(uint32_t *crc_reference) {
+    assert(crc_reference);
+    *crc_reference = CRC_NEW;
 }
 
-void crc_checksum_buffer(uint32_t *crc, const void *buffer, size_t size) {
-    assert(crc && buffer);
+void crc_checksum_buffer(uint32_t *crc_reference, const void *buffer, size_t size) {
+    assert(crc_reference && buffer);
     const uint8_t *p = buffer;
-    uint32_t new_crc = *crc;
+    uint32_t crc = *crc_reference;
     while(size--) {
-        new_crc = crc32_tab[(new_crc ^ *p++) & 0xFF] ^ (new_crc >> 8);
+        crc = crc32_tab[(crc ^ *p++) & 0xFF] ^ (crc >> 8);
     }
 
-    *crc = new_crc;
+    *crc_reference = crc;
 }

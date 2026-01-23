@@ -8,6 +8,7 @@
 
 #include "../data_types.h"
 #include "../crc/crc.h"
+#include "../crc/crc_forcer.h"
 #include "../file/file.h"
 #include "../tag/tag.h"
 #include "../tag/tag_fourcc.h"
@@ -112,20 +113,20 @@ static bool cache_file_tag_data_is_corrupt(struct tag_data_instance *tag_data) {
     return false;
 }
 
-static bool cache_file_fix_checksum(struct cache_file_instance *cache_file) {
-    assert(cache_file && cache_file->valid);
+bool cache_file_checksum(uint32_t *crc_reference, struct cache_file_instance *cache_file) {
+    assert(crc_reference && cache_file && cache_file->valid);
     struct scenario *scenario_tag = tag_get(cache_file->tag_data.header->scenario_tag, TAG_FOURCC_SCENARIO, &cache_file->tag_data);
     if(!scenario_tag) {
         return false;
     }
 
-    crc_new(&cache_file->header->checksum);
+    crc_new(crc_reference);
     for(size_t i = 0; i < scenario_tag->structure_bsp_references.count; i++) {
         struct scenario_structure_bsp_reference *bsp = scenario_get_bsp_reference(scenario_tag, i, &cache_file->tag_data);
         if(!bsp && (bsp->offset > cache_file->size || (uint64_t)bsp->offset + (uint64_t)bsp->size > cache_file->size)) {
             return false;
         }
-        crc_checksum_buffer(&cache_file->header->checksum, cache_file->data + bsp->offset, bsp->size);
+        crc_checksum_buffer(crc_reference, cache_file->data + bsp->offset, bsp->size);
     }
 
     size_t model_data_offset = cache_file->tag_data.header->vertex_buffers_offset;
@@ -134,10 +135,18 @@ static bool cache_file_fix_checksum(struct cache_file_instance *cache_file) {
         return false;
     }
 
-    crc_checksum_buffer(&cache_file->header->checksum, cache_file->data + model_data_offset, model_data_size);
-    crc_checksum_buffer(&cache_file->header->checksum, cache_file->tag_data.data, cache_file->tag_data.size);
+    crc_checksum_buffer(crc_reference, cache_file->data + model_data_offset, model_data_size);
+    crc_checksum_buffer(crc_reference, cache_file->tag_data.data, cache_file->tag_data.size);
 
     return true;
+}
+
+void cache_file_force_checksum(uint32_t new_crc, struct cache_file_instance *cache_file) {
+    assert(cache_file && cache_file->valid);
+    assert(!cache_file->dirty);
+    uint32_t *crc = &cache_file->header->checksum;
+    size_t field_offset = offsetof(struct tag_data_header, tag_data_checksum);
+    crc_force_buffer_checksum(crc, new_crc, cache_file->tag_data.data, cache_file->tag_data.size, field_offset);
 }
 
 uint16_t cache_file_resolve_build(struct cache_file_header *header) {
@@ -220,6 +229,22 @@ void cache_file_load(const char *path, struct cache_file_instance *cache_file) {
         goto cleanup;
     }
 
+    // Check the CRC
+    uint32_t checksum;
+    if(!cache_file_checksum(&checksum, cache_file)) {
+        fprintf(stderr, "%s: Failed to calculate cache file checksum\n", cache_file->header->name);
+        goto cleanup;
+    }
+
+#ifndef TOOL_SQUISHER_TRUST_ME_BRO
+    if(checksum != cache_file->header->checksum) {
+        fprintf(stderr, "%s: Cache file checksum does not match header\n", cache_file->header->name);
+        goto cleanup;
+    }
+#else
+    cache_file->header->checksum = checksum;
+#endif
+
     return;
 
     cleanup:
@@ -244,12 +269,20 @@ bool cache_file_update_header(struct cache_file_instance *cache_file, bool updat
             cache_file_tracked_builds[CACHE_FILE_TRACKED_BUILD_TOOL_SQUISHER], sizeof(cache_file->header->build_number));
     }
 
-    if(!cache_file_fix_checksum(cache_file)) {
+    if(!cache_file_checksum(&cache_file->header->checksum, cache_file)) {
         fprintf(stderr, "%s: Failed to calculate cache file checksum\n", cache_file->header->name);
         return false;
     }
 
+    cache_file->dirty = false;
     return true;
+}
+
+bool cache_file_save(const char *path, struct cache_file_instance *cache_file) {
+    assert(cache_file && cache_file->valid);
+    assert(!cache_file->dirty);
+
+    return file_write_from_buffer(path, cache_file->data, cache_file->size);
 }
 
 void cache_file_unload(struct cache_file_instance *cache_file) {

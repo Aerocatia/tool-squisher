@@ -58,6 +58,9 @@ static bool postprocess_map(const char *path) {
         return false;
     }
 
+    // Hold this
+    uint32_t original_checksum = cache_file.header->checksum;
+
     bool success = true;
     auto cache_build = cache_file_resolve_build(cache_file.header);
     switch(cache_build) {
@@ -89,7 +92,11 @@ static bool postprocess_map(const char *path) {
         goto exit;
     }
 
-    success = file_write_from_buffer(path, cache_file.data, cache_file.size);
+    // Change the crc back
+    cache_file_force_checksum(original_checksum, &cache_file);
+
+    // Save
+    success = cache_file_save(path, &cache_file);
     if(success) {
         printf("%s: Saved!\n", path);
     }
@@ -101,6 +108,7 @@ static bool postprocess_map(const char *path) {
 
 static bool postprocess_tag_data(struct cache_file_instance *cache_file) {
     assert(cache_file && cache_file->valid);
+    cache_file->dirty = true;
 
     // Fix the BSPs
     if(!scenario_structure_bsp_postprocess_all_in_cache(cache_file)) {

@@ -9,6 +9,7 @@ project(ToolSquisher
 add_executable(tool-squisher
     src/cache/cache.c
     src/crc/crc.c
+    src/crc/crc_forcer.c
     src/file/file.c
     src/resources/resources.c
     src/tag/tag.c
