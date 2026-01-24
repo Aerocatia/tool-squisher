@@ -7,6 +7,7 @@
 #include "cache.h"
 
 #include "../data_types.h"
+#include "../global_options.h"
 #include "../crc/crc.h"
 #include "../crc/crc_forcer.h"
 #include "../file/file.h"
@@ -49,6 +50,12 @@ static bool cache_file_tag_data_is_corrupt(struct tag_data_instance *tag_data) {
     size_t tag_array_bsp_count = 0;
     const size_t scenario_bsp_count = scenario_tag->structure_bsp_references.count;
     for(size_t t = 0; t < tag_data->header->tag_count; t++) {
+        // This is an Invader thing but for the sake of this check we allow it
+        auto tag_group = tag_data->tags[t].primary_group;
+        if(tag_group == TAG_FOURCC_NONE) {
+            continue;
+        }
+
         const char *tag_path = tag_path_get_maybe(tag_data->tags[t].tag_id, tag_data);
         if(!tag_path) {
             return true;
@@ -58,8 +65,6 @@ static bool cache_file_tag_data_is_corrupt(struct tag_data_instance *tag_data) {
         if(strcmp(tag_path, "") == 0) {
             return true;
         }
-
-        auto tag_group = tag_data->tags[t].primary_group;
 
         // If it says it's a BSP, check if it's really a BSP
         if(tag_group == TAG_FOURCC_SCENARIO_STRUCTURE_BSP) {
@@ -79,17 +84,10 @@ static bool cache_file_tag_data_is_corrupt(struct tag_data_instance *tag_data) {
             }
         }
 
-        // This is an Invader thing but for the sake of this check we allow it
-        if(tag_group == TAG_FOURCC_NONE) {
-            continue;
-        }
-
-#ifndef TOOL_SQUISHER_TRUST_ME_BRO
         // Tag group fourcc must be known
-        if(!tag_fourcc_is_valid_tag(tag_group)) {
+        if(!TEST_FLAG(global_option_flags, GLOBAL_OPTON_FLAGS_RELAXED_BIT) && !tag_fourcc_is_valid_tag(tag_group)) {
             return true;
         }
-#endif
 
         // Check for duplicate tag paths
         for(size_t t2 = 0; t2 < t; t2++) {
@@ -191,13 +189,11 @@ void cache_file_load(const char *path, struct cache_file_instance *cache_file) {
         goto cleanup;
     }
 
-#ifndef TOOL_SQUISHER_TRUST_ME_BRO
     // This should be at the end if the cache file was made by regular tool.exe
-    if(end_of_tag_data != cache_file->size) {
+    if(!TEST_FLAG(global_option_flags, GLOBAL_OPTON_FLAGS_RELAXED_BIT) && end_of_tag_data != cache_file->size) {
         fprintf(stderr, "%s: Tag data is not at the end of the cache file\n", cache_file->header->name);
         goto cleanup;
     }
-#endif
 
     cache_file->tag_data.data = cache_file->data + cache_file->header->tags_offset;
     if(cache_file->tag_data.header->tag_count > INT16_MAX) {
@@ -236,14 +232,14 @@ void cache_file_load(const char *path, struct cache_file_instance *cache_file) {
         goto cleanup;
     }
 
-#ifndef TOOL_SQUISHER_TRUST_ME_BRO
-    if(checksum != cache_file->header->checksum) {
+    // The header must match when loaded
+    if(TEST_FLAG(global_option_flags, GLOBAL_OPTON_FLAGS_RELAXED_BIT)) {
+        cache_file->header->checksum = checksum;
+    }
+    else if(checksum != cache_file->header->checksum) {
         fprintf(stderr, "%s: Cache file checksum does not match header\n", cache_file->header->name);
         goto cleanup;
     }
-#else
-    cache_file->header->checksum = checksum;
-#endif
 
     return;
 

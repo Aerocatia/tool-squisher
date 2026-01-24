@@ -11,8 +11,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <libgen.h>
+#include <getopt.h>
 #include <assert.h>
 
+#include "data_types.h"
+#include "global_options.h"
 #include "cache/cache.h"
 #include "crc/crc.h"
 #include "file/file.h"
@@ -20,28 +23,74 @@
 #include "tag/tag_fourcc.h"
 #include "tag_groups/tag_groups.h"
 
+static void print_usage(const char *executable);
 static bool postprocess_map(const char *path);
-int main(int argc, const char **argv) {
+static bool postprocess_tag_data(struct cache_file_instance *cache_file);
+
+int main(int argc, char **argv) {
     char *executable_path = strdup(argv[0]);
     if(!executable_path) {
         return 1;
     }
     char *executable = basename(executable_path);
     if(argc == 1) {
-        fprintf(stderr, "Usage: %s <map> [map [...]]\n", executable);
+        print_usage(executable);
         return 1;
+    }
+
+    static const char *short_options = ":hnr";
+    static struct option long_options[] = {
+        {GLOBAL_OPTION_ARG_HELP_STRING,            no_argument, nullptr, 'h'},
+        {GLOBAL_OPTION_ARG_NO_PRESERVE_CRC_STRING, no_argument, nullptr, 'n'},
+        {GLOBAL_OPTION_ARG_RELAXED_STRING,         no_argument, nullptr, 'r'},
+        {0, 0, 0, 0}
+    };
+
+    while(true) {
+        int option_index = 0;
+        int opt = getopt_long(argc, argv, short_options, long_options, &option_index);
+        if(opt == NONE) {
+            break;
+        }
+
+        switch(opt) {
+            case 'h':
+                print_usage(executable);
+                return 0;
+            case 'n':
+                SET_FLAG(global_option_flags, GLOBAL_OPTON_FLAGS_NO_PRESERVE_CRC_BIT, true);
+                break;
+            case 'r':
+                SET_FLAG(global_option_flags, GLOBAL_OPTON_FLAGS_RELAXED_BIT, true);
+                break;
+            case '?':
+                fprintf(stderr, "Unknown option: %s\nUse --%s for usage.\n",
+                    argv[optind - 1], global_option_long_names[GLOBAL_OPTION_ARG_HELP]);
+                return 1;
+            default:
+                abort();
+        }
     }
 
     free(executable_path);
 
     bool success = false;
-    for(int i = 1; i < argc; i++) {
+    for(int i = optind; i < argc; i++) {
         success = postprocess_map(argv[i]) || success;
     }
+
     return success ? 0 : 1;
 }
 
-static bool postprocess_tag_data(struct cache_file_instance *cache_file);
+static void print_usage(const char *executable) {
+    fprintf(stderr, "Usage: %s [options] <map> [map [...]]\n", executable);
+    fprintf(stderr, "Options:\n");
+    for(int i = 0; i < NUMBER_OF_GLOBAL_OPTION_ARGS; i++) {
+        fprintf(stderr, "  -%s, --%-16s %s\n",
+            global_option_short_names[i], global_option_long_names[i], global_option_help[i]);
+    }
+}
+
 static bool postprocess_map(const char *path) {
     assert(path);
 
@@ -93,7 +142,9 @@ static bool postprocess_map(const char *path) {
     }
 
     // Change the crc back
-    cache_file_force_checksum(original_checksum, &cache_file);
+    if(!TEST_FLAG(global_option_flags, GLOBAL_OPTON_FLAGS_NO_PRESERVE_CRC_BIT)) {
+        cache_file_force_checksum(original_checksum, &cache_file);
+    }
 
     // Save
     success = cache_file_save(path, &cache_file);
