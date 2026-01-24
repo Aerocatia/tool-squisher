@@ -140,9 +140,9 @@ void crc_force_buffer_checksum(uint32_t *crc_reference, uint32_t new_crc, uint8_
     uint32_t delta = reverse_bits(*crc_reference) ^ reverse_bits(new_crc);
     delta = (uint32_t)multiply_mod(reciprocal_mod(pow_mod(2, (size - offset) * 8)), delta);
     uint32_t mod_bytes;
-    memcpy(&mod_bytes, buffer + offset, sizeof(uint32_t));
+    memcpy(&mod_bytes, buffer + offset, sizeof(mod_bytes));
     mod_bytes ^= reverse_bits(delta);
-    memcpy(buffer + offset, &mod_bytes, sizeof(uint32_t));
+    memcpy(buffer + offset, &mod_bytes, sizeof(mod_bytes));
 
     *crc_reference = new_crc;
 }
