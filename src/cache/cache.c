@@ -121,7 +121,7 @@ static bool cache_file_checksum(uint32_t *crc_reference, struct cache_file_insta
     crc_new(crc_reference);
     for(size_t i = 0; i < scenario_tag->structure_bsp_references.count; i++) {
         struct scenario_structure_bsp_reference *bsp = scenario_get_bsp_reference(scenario_tag, i, &cache_file->tag_data);
-        if(!bsp && (bsp->offset > cache_file->size || (uint64_t)bsp->offset + (uint64_t)bsp->size > cache_file->size)) {
+        if(!bsp || (uint64_t)bsp->offset + (uint64_t)bsp->size > cache_file->size) {
             return false;
         }
         crc_checksum_buffer(crc_reference, cache_file->data + bsp->offset, bsp->size);
@@ -139,7 +139,7 @@ static bool cache_file_checksum(uint32_t *crc_reference, struct cache_file_insta
     return true;
 }
 
-void cache_file_force_checksum(uint32_t new_crc, struct cache_file_instance *cache_file) {
+void cache_file_forge_checksum(uint32_t new_crc, struct cache_file_instance *cache_file) {
     assert(cache_file && cache_file->valid);
     assert(!cache_file->dirty);
     uint32_t *crc = &cache_file->header->checksum;

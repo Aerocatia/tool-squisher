@@ -22,27 +22,25 @@
 #include "tag/tag.h"
 #include "tag/tag_fourcc.h"
 #include "tag_groups/tag_groups.h"
+#include "version.h"
 
 static void print_usage(const char *executable);
 static bool postprocess_map(const char *path);
 static bool postprocess_tag_data(struct cache_file_instance *cache_file);
 
 int main(int argc, char **argv) {
-    char *executable_path = strdup(argv[0]);
-    if(!executable_path) {
-        return 1;
-    }
-    char *executable = basename(executable_path);
     if(argc == 1) {
-        print_usage(executable);
-        return 1;
+        fprintf(stderr, "No input given\nUse --%s for usage\n",
+            global_option_long_names[GLOBAL_OPTION_ARG_HELP]);
+        return EXIT_FAILURE;
     }
 
-    static const char *short_options = ":hnr";
+    static const char *short_options = ":hnrv";
     static struct option long_options[] = {
         {GLOBAL_OPTION_ARG_HELP_STRING,            no_argument, nullptr, 'h'},
         {GLOBAL_OPTION_ARG_NO_PRESERVE_CRC_STRING, no_argument, nullptr, 'n'},
         {GLOBAL_OPTION_ARG_RELAXED_STRING,         no_argument, nullptr, 'r'},
+        {GLOBAL_OPTION_ARG_VERSION_STRING,         no_argument, nullptr, 'v'},
         {0, 0, 0, 0}
     };
 
@@ -55,16 +53,20 @@ int main(int argc, char **argv) {
 
         switch(opt) {
             case 'h':
-                print_usage(executable);
-                return 0;
+                print_usage(argv[0]);
+                return EXIT_SUCCESS;
             case 'n':
                 SET_FLAG(global_option_flags, GLOBAL_OPTON_FLAGS_NO_PRESERVE_CRC_BIT, true);
                 break;
             case 'r':
                 SET_FLAG(global_option_flags, GLOBAL_OPTON_FLAGS_RELAXED_BIT, true);
                 break;
+            case 'v':
+                    printf("tool-squisher %s, by Aerocatia\n", TOOL_SQUISHER_VERSION);
+                    return EXIT_SUCCESS;
+                break;
             case '?':
-                fprintf(stderr, "Unknown option: %s\nUse --%s for usage.\n",
+                fprintf(stderr, "Unknown option: %s\nUse --%s for usage\n",
                     argv[optind - 1], global_option_long_names[GLOBAL_OPTION_ARG_HELP]);
                 return 1;
             default:
@@ -72,23 +74,28 @@ int main(int argc, char **argv) {
         }
     }
 
-    free(executable_path);
-
     bool success = false;
     for(int i = optind; i < argc; i++) {
         success = postprocess_map(argv[i]) || success;
     }
 
-    return success ? 0 : 1;
+    return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-static void print_usage(const char *executable) {
-    fprintf(stderr, "Usage: %s [options] <map> [map [...]]\n", executable);
-    fprintf(stderr, "Options:\n");
+static void print_usage(const char *executable_path) {
+    char *path_copy = strdup(executable_path);
+    if(!path_copy) {
+        abort();
+    }
+    char *executable = basename(path_copy);
+    printf("Usage: %s [options] <map> [map [...]]\n", executable);
+    printf("Options:\n");
     for(int i = 0; i < NUMBER_OF_GLOBAL_OPTION_ARGS; i++) {
-        fprintf(stderr, "  -%s, --%-16s %s\n",
+        printf("  -%s, --%-16s %s\n",
             global_option_short_names[i], global_option_long_names[i], global_option_help[i]);
     }
+
+    free(path_copy);
 }
 
 static bool postprocess_map(const char *path) {
@@ -96,7 +103,7 @@ static bool postprocess_map(const char *path) {
 
     // It's less annoying to just skip these
     if(file_path_is_resource_map(path)) {
-        printf("%s: Skipped (assuming it's a resource map)\n", path);
+        fprintf(stderr, "%s: Skipped (assuming it's a resource map)\n", path);
         return true;
     }
 
@@ -143,7 +150,7 @@ static bool postprocess_map(const char *path) {
 
     // Change the crc back
     if(!TEST_FLAG(global_option_flags, GLOBAL_OPTON_FLAGS_NO_PRESERVE_CRC_BIT)) {
-        cache_file_force_checksum(original_checksum, &cache_file);
+        cache_file_forge_checksum(original_checksum, &cache_file);
     }
 
     // Save
