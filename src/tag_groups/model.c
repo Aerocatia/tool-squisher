@@ -15,6 +15,9 @@ bool gbxmodel_postprocess(TagID tag, struct tag_data_instance *tag_data) {
         return false;
     }
 
+    // Unset this since it has been applied once already
+    SET_FLAG(gbxmodel->flags, MODEL_FLAGS_BLEND_SHARED_NORMALS_BIT, false);
+
     for(size_t g = 0; g < gbxmodel->geometries.count; g++) {
         struct model_geometry *geometry = model_get_geometry(gbxmodel, g, tag_data);
         if(!geometry) {

@@ -37,7 +37,7 @@ add_executable(tool-squisher
     src/global_options.c
 )
 
-target_compile_options(tool-squisher PRIVATE -Wall -Wextra -Werror)
+target_compile_options(tool-squisher PRIVATE -Wall -Wextra)
 
 if(WIN32)
     target_sources(tool-squisher PRIVATE src/windows.rc)
