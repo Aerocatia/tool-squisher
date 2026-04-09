@@ -7,6 +7,7 @@
 #include "../tag/tag_fourcc.h"
 #include "../tag/tag_processing.h"
 
+#include "hud_types.h"
 #include "unit.h"
 
 void unit_process_metagame_properties(struct unit_metagame_properties *metagame_properties) {
@@ -22,6 +23,11 @@ bool uint_postprocess(TagID tag, struct tag_data_instance *tag_data) {
         fprintf(stderr, "tag data for \"%s.%s\" is invalid\n",
             tag_path_get(tag, tag_data), tag_extension_get(tag, tag_data));
         return false;
+    }
+
+    // This can be invalid due to Bungie changing the struct after some stock tags were made, and tool.exe will not check it.
+    if(unit->unit.blip_type >= NUMBER_OF_HUD_BLIP_TYPES) {
+        unit->unit.blip_type = HUD_BLIP_TYPE_MEDIUM;
     }
 
     // Added in MCC CEA
